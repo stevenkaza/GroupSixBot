@@ -56,10 +56,10 @@ class AI:
 if __name__ == "__main__":
 	
 	port = 13000
-	ip = "192.168.0.101"
+	ip = "localhost"
 
 	if len(sys.argv) == 1:
-		print "using default port number 13000 and IP address 192.168.0.101"
+		print "using default port number 13000 and IP address localhost"
 		print "To use a different port number and IP address include the number at the end of the command"
 		print "ex: python AI.py 8080 192.168.0.101"
 	elif len(sys.argv) == 2:
