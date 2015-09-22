@@ -1,9 +1,10 @@
 from Move import *
 from Com import *
+import sys
 
 class AI:
 
-	def __init__(self):
+	def __init__(self, port = 13000, host = "192.168.0.101"):
 		"""
 			This function has two objects right now
 			move will control the movement of the pibot
@@ -12,7 +13,7 @@ class AI:
 			does its AI stuff, calls move to move the bot and calls com to update the laptop
 		"""
 		self.move = Move()
-		self.com = Com()
+		self.com = Com(port = port, host = host)
 
 	def sense(self):
 
@@ -53,8 +54,30 @@ class AI:
 
 
 if __name__ == "__main__":
+	
+	port = 13000
+	ip = "192.168.0.101"
 
-	a = AI()
+	if len(sys.argv) == 1:
+		print "using default port number 13000 and IP address 192.168.0.101"
+		print "To use a different port number and IP address include the number at the end of the command"
+		print "ex: python AI.py 8080 192.168.0.101"
+	elif len(sys.argv) == 2:
+		try:
+			port = int(sys.argv[1])
+		except ValueError:
+			print "Please enter an integer for the port number"
+			print "using default port number 13000"
+	else:
+		ip = sys.argv[2]
+		try:
+			port = int(sys.argv[1])
+		except ValueError:
+			print "Please enter an integer for the port number"
+			print "using default port number 13000"
+
+	print "Using port:" + str(port) + " and IP " + ip
+	a = AI(port,ip)
 
 	print "Starting AI"
 

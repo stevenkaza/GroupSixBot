@@ -3,6 +3,7 @@ from socket import *
 
 class UI:
 	def __init__(self,host ="",port = 13000,buf = 1024):
+		
 		self.buf = buf
 		self.addr = (host, port)
 		self.UDPSock = socket(AF_INET, SOCK_DGRAM)

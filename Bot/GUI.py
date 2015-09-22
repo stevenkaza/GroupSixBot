@@ -4,9 +4,11 @@ import threading
 import thread
 import os
 from socket import *
+import sys
 
 class GUI(Tk):
-	def __init__(self):
+	def __init__(self,port = 13000):
+		
 		Tk.__init__(self)
 		frameT = Frame(self)
 		frameC = Frame(self)
@@ -18,7 +20,7 @@ class GUI(Tk):
 
 		self.c = Canvas(frameC,bg = 'red',height = 200, width = 200)
 		self.c.pack()
-		self.u = UI()
+		self.u = UI(port = port)
 
 	def drawOnMap(self, data):
 		#date is a 4 tuple ie (0,0,100,100)
@@ -62,7 +64,22 @@ class CanFrame(Canvas):
 
 if __name__ == "__main__":
 
-	g = GUI()
+	port = 13000
+
+	if len(sys.argv) != 2:
+		print "using default port number 13000"
+		print "To use a different port number include the number at the end of the command"
+		print "ex: python GUI.py 8080"
+	else:
+		try:
+			port = int(sys.argv[1])
+		except ValueError:
+			print "Please enter an integer for the port number"
+			print "using default port number 13000"
+
+	print "Using port:" + str(port)
+
+	g = GUI(port)
 
 	thread.start_new_thread ( g.display,())
 
