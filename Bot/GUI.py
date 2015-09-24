@@ -7,6 +7,7 @@ from socket import *
 import sys
 
 class GUI(Tk):
+	
 	def __init__(self,port = 13000):
 		
 		Tk.__init__(self)
