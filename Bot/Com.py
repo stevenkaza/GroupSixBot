@@ -14,7 +14,8 @@ class Com:
 
 		"""
 		self.addr = (host, port)
-		self.UDPSock = socket(AF_INET, SOCK_DGRAM)
+		self.client = socket()
+		self.client.connect(self.addr)
 
 	"""
 		for now the following two functions do the exact same thing.
@@ -22,15 +23,15 @@ class Com:
 		the client sends have the server parse it and perform the right operations
 	"""
 	def sendMessage(self, message):
-		self.UDPSock.sendto(str(message), self.addr)
+		self.client.send(str(message))
 
 	def updateMap(self,data):
 		#data needs to be turn into a string (for now)
-		self.UDPSock.sendto(str(data), self.addr)
+		self.client.send(str(data))
 
 	def end(self):
 		"""
 			This function simply closes the socket
 		"""
-		self.UDPSock.close()
+		self.client.close()
 		os._exit(0)

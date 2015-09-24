@@ -1,5 +1,5 @@
 from Tkinter import *
-from UI import *
+from SocketHelper import *
 import threading
 import thread
 import os
@@ -21,7 +21,7 @@ class GUI(Tk):
 
 		self.c = Canvas(frameC,bg = 'red',height = 200, width = 200)
 		self.c.pack()
-		self.u = UI(port = port)
+		self.sh = SocketHelper(port = port)
 
 	def drawOnMap(self, data):
 		#date is a 4 tuple ie (0,0,100,100)
@@ -36,7 +36,7 @@ class GUI(Tk):
 
 	def display(self):
 		while 1:
-			(data, self.u.addr) = self.u.UDPSock.recvfrom(self.u.buf)			
+			data = self.sh.listener.recv(self.sh.buf)			
 			print "Received message: " + data
 			if data == "exit":
 				break
@@ -44,24 +44,9 @@ class GUI(Tk):
 				self.drawOnMap((0,0,55,55))
 			else:
 				self.displayMessage(data)
-		self.u.UDPSock.close()
+		self.sh.server.close()
 		os._exit(0)
 
-class TextFrame(Text):
-	def __init__(self,top):
-		Text.__init__(self,top,width = 10,height = 10)
-		self.pack()
-
-	def displayMessage(self,message):
-		self.insert(INSERT, message)
-
-class CanFrame(Canvas):
-	def __init__(self,top):
-		Canvas.__init__(self,top,bg = 'red',height = 200, width = 200)
-		self.pack()
-
-	def draw(self):
-		self.create_line(1,1,40,40)
 
 if __name__ == "__main__":
 

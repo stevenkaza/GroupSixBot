@@ -4,7 +4,7 @@ import sys
 
 class AI:
 
-	def __init__(self, port = 13000, host = "192.168.0.101"):
+	def __init__(self, port = 13000, host = "localhost"):
 		"""
 			This function has two objects right now
 			move will control the movement of the pibot
