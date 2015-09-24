@@ -2,7 +2,7 @@ import os
 import socket               # Import socket module
 
 class SocketHelper:
-	def __init__(self,host = "localhost",port = 13000,buf = 1024):
+	def __init__(self,host = "",port = 13000,buf = 1024):
 		
 		self.buf = buf
 		self.addr = (host, port)
