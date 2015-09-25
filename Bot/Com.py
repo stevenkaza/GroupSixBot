@@ -1,5 +1,6 @@
 import os
 from socket import *
+import json
 
 class Com:
 
@@ -27,7 +28,8 @@ class Com:
 
 	def updateMap(self,data):
 		#data needs to be turn into a string (for now)
-		self.client.send(str(data))
+		dataStr = json.dumps(data)
+		self.client.send(dataStr)
 
 	def end(self):
 		"""

@@ -5,6 +5,7 @@ import thread
 import os
 from socket import *
 import sys
+from Map import *
 
 class GUI(Tk):
 	
@@ -25,10 +26,10 @@ class GUI(Tk):
 
 	def drawOnMap(self, data):
 		#date is a 4 tuple ie (0,0,100,100)
-		x0 = int(data[0])
-		y0 = int(data[1])
-		x1 = int(data[2])
-		y1 = int(data[3])
+		x0 = int(data.points[0])
+		y0 = int(data.points[1])
+		x1 = int(data.points[2])
+		y1 = int(data.points[3])
 		self.c.create_line(x0,y0,x1,y1)
 
 	def displayMessage(self, message):

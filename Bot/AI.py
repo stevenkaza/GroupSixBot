@@ -1,6 +1,8 @@
 from Move import *
 from Com import *
 import sys
+import json
+from Map import *
 
 class AI:
 
@@ -47,15 +49,16 @@ class AI:
 		else:
 			
 			while 1:
-				data = raw_input("Enter x,y: ")
+				data = raw_input("Enter x0,y0,x1,y1: ")
 				inp = data.split(",")
 
-				if len(inp) != 2:
+				if len(inp) != 4:
 					print "Invalid input"
 				else:
+					m = Map((int(inp[0]),int(inp[1]),int(inp[2]),int(inp[3])))
 					self.move.move(int(inp[0]),int(inp[1]))
 					self.com.sendMessage("data")
-					self.com.updateMap("input")
+					self.com.updateMap(m)
 					break
 
 

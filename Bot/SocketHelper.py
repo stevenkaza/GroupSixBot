@@ -1,5 +1,6 @@
 import os
 import socket               # Import socket module
+from Map import *
 
 class SocketHelper:
 	
@@ -42,8 +43,10 @@ class SocketHelper:
 				self.displayMessage(mes)
 
 			elif message == "data":
-				mes = self.listener.recv(self.buf) #change so it accepts object (use json)
-				self.drawOnMap((0,0,55,55))
+				mesStr = self.listener.recv(self.buf) #change so it accepts object (use json)
+				m = json.loads(mesStr)
+				print "M is: ", type(m)
+				self.drawOnMap(m.points)
 		
 
 		self.listener.close()
