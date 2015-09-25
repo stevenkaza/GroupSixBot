@@ -17,12 +17,12 @@ class SocketHelper:
 		print "Waiting: ", self.addr
 		self.listener,addr = self.server.accept() #waits until 1 socket connects to it
 		
-	def displayMes(self,mes):
-		func = getattr(self.Handler,"displayMes")
+	def displayMessage(self,mes):
+		func = getattr(self.handler,"displayMessage")
 		func(mes)
 
 	def drawOnMap(self,data):
-		func = getattr(self.Handler,"drawOnMap")
+		func = getattr(self.handler,"drawOnMap")
 		func(mes)
 
 	def display(self):
@@ -32,13 +32,15 @@ class SocketHelper:
 			message = self.listener.recv(self.buf)			
 			print "Received message: " + message
 
+			if message == "exit":
+				break
+
 			if message == 'mes':
 				mes = self.listener.recv(self.buf)	
 				self.displayMessage(mes)
 
-			if data == "exit":
-				break
-			elif data == "draw":
+			elif message == "data":
+				mes = self.listener.recv(self.buf) #change so it accepts object (use json)
 				self.drawOnMap((0,0,55,55))
 		
 

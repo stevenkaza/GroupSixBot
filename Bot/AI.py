@@ -47,7 +47,8 @@ class AI:
 					print "Invalid input"
 				else:
 					self.move.move(int(inp[0]),int(inp[1]))
-					self.com.updateMap("draw")
+					self.com.sendMessage("data")
+					self.com.updateMap("input")
 					break
 
 
