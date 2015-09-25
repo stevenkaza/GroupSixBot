@@ -23,7 +23,7 @@ class SocketHelper:
 
 	def drawOnMap(self,data):
 		func = getattr(self.handler,"drawOnMap")
-		func(mes)
+		func(data)
 
 	def display(self):
 		
@@ -36,7 +36,9 @@ class SocketHelper:
 				break
 
 			if message == 'mes':
-				mes = self.listener.recv(self.buf)	
+				mes = self.listener.recv(self.buf)
+				if mes == "exit":
+					break
 				self.displayMessage(mes)
 
 			elif message == "data":

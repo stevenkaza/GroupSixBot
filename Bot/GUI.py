@@ -34,19 +34,6 @@ class GUI(Tk):
 	def displayMessage(self, message):
 		self.t.insert(INSERT, message)
 
-	def display(self):
-		while 1:
-			data = self.sh.listener.recv(self.sh.buf)			
-			print "Received message: " + data
-			if data == "exit":
-				break
-			elif data == "draw":
-				self.drawOnMap((0,0,55,55))
-			else:
-				self.displayMessage(data)
-		self.sh.server.close()
-		os._exit(0)
-
 
 if __name__ == "__main__":
 
