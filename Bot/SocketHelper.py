@@ -44,6 +44,7 @@ class SocketHelper:
 				self.displayMessage(mes)
 
 			elif message == "data":
+				print "IN data"
 				mesStr = self.listener.recv(self.buf) #change so it accepts object (use json)
 				m = json.loads(mesStr)
 				nm = Map(m)
