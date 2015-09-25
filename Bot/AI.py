@@ -31,7 +31,7 @@ class AI:
 		if command == "exit":
 			self.com.sendMessage(mes)
 			self.com.end()
-			return mes
+			return command
 
 		if command == "mes":
 
