@@ -7,4 +7,4 @@ class Map:
 
 	def to_JSON(self):
 
-		return json.dumps(self,default=lambda o: o.__tuple__)
+		return json.dumps(self,default=lambda self.point: self.point.__tuple__)
