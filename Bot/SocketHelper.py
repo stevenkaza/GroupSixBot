@@ -46,8 +46,8 @@ class SocketHelper:
 			elif message == "data":
 				mesStr = self.listener.recv(self.buf) #change so it accepts object (use json)
 				m = json.loads(mesStr)
-				print "M is: ", type(m)
-				self.drawOnMap(m.points)
+				nm = Map(m)
+				self.drawOnMap(nm.points)
 		
 
 		self.listener.close()

@@ -3,8 +3,21 @@ import json
 class Map:
 
 	def __init__(self, points = (0,0,100,100)):
-		self.points = points
+		if type(points) == tuple:
+			self.points = points
+		else:
+			self.points = tuple(points["points"])
 
-	def to_JSON(self):
 
-		return json.dumps(self,default=lambda self.point: self.point.__tuple__)
+if __name__ == "__main__":
+
+	m = Map((0,0,55,55))
+	print m
+
+	jd = json.dumps(vars(m))
+
+	c = json.loads(jd)
+
+	nm = Map(c)
+
+	print nm.points

@@ -28,7 +28,7 @@ class Com:
 
 	def updateMap(self,data):
 		#data needs to be turn into a string (for now)
-		dataStr = json.dumps(data)
+		dataStr = json.dumps(vars(data))
 		self.client.send(dataStr)
 
 	def end(self):
