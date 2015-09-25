@@ -29,7 +29,7 @@ class AI:
 		command = raw_input("mes or data?: ")
 
 		if command == "exit":
-			self.com.sendMessage(mes)
+			self.com.sendMessage(command)
 			self.com.end()
 			return command
 
