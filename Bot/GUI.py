@@ -67,6 +67,6 @@ if __name__ == "__main__":
 
 	g = GUI(port)
 
-	thread.start_new_thread ( g.display,())
+	thread.start_new_thread ( g.sh.display,())
 
 	g.mainloop()
