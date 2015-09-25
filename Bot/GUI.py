@@ -21,7 +21,7 @@ class GUI(Tk):
 
 		self.c = Canvas(frameC,bg = 'red',height = 200, width = 200)
 		self.c.pack()
-		self.sh = SocketHelper(port = port)
+		self.sh = SocketHelper(port = port, handle = self)
 
 	def drawOnMap(self, data):
 		#date is a 4 tuple ie (0,0,100,100)
