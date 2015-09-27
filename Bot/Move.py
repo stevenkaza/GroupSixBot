@@ -9,13 +9,24 @@ class Move:
 		self.location = start
 		self.x = start[0]
 		self.y = start[1]
+		self.us = Ultrasound()
 		self.movement = Movement()
 
-	def move(self, x ,y):
-		self.y += y
-		self.x += x
+	def checkBoundary(self,distance):
+		if (self.us.read_normalized() - distance >= 10):
+			return True
+		return False
 
-		self.location = (self.x,self.y)
+
+	def moveForward(self,distance):
+		status = True
+		if (self.checkBoundary(distance)):
+			self.movement.forward(100)
+			time.sleep(distance/12)
+		else:
+			status = False
+		self.movement.stop()
+		return status
 
 	def timedSpin(self,spinTime,direction):
 			if (direction == 'left'):
@@ -33,12 +44,13 @@ class Move:
 		else:
 			direction = 'left'
 		angle = abs(angle)
-		spinTime = angle*0.0053763408602
+		spinTime = angle*0.0053763408602 # degrees per second
 		self.timedSpin(spinTime,direction)
 
 bot = Move()
 s = ""
 while(s !='s'):
 	s = raw_input()
-	bot.turn(s)
+	if (s!='s'):
+		bot.moveForward(float(s))
 bot.movement.stop()
