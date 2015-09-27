@@ -12,12 +12,6 @@ class Move:
 		self.x = start[0]
 		self.y = start[1]
 
-	def move(self, x ,y):
-		self.y += y
-		self.x += x
-
-		self.location = (self.x,self.y)
-
 		self.us = Ultrasound()
 		self.movement = Movement()
 
@@ -66,4 +60,3 @@ while(s !='s'):
 	if (s!='s'):
 		bot.moveForward(float(s))
 bot.movement.stop()
-		self.location = (self.x,self.y)
