@@ -21,10 +21,14 @@ class Move:
 		return False
 
 
-	def moveForward(self,distance):
+	def move(self,distance):
 		status = True
 		if (self.checkBoundary(distance)):
-			self.movement.forward(100)
+			if (distance>0):
+				self.movement.forward(100)
+			else:
+				self.movement.backward(100)
+			distance = abs(distance)
 			time.sleep(distance/12)
 		else:
 			status = False
@@ -49,14 +53,10 @@ class Move:
 		angle = abs(angle)
 		spinTime = angle*0.0053763408602 # degrees per second
 		self.timedSpin(spinTime,direction)
-	def move(self, x ,y):
-		self.y += y
-		self.x += x
-
 bot = Move()
 s = ""
 while(s !='s'):
 	s = raw_input()
 	if (s!='s'):
-		bot.moveForward(float(s))
+		bot.move(float(s))
 bot.movement.stop()
