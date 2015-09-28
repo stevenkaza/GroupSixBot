@@ -26,9 +26,18 @@ it depends on the surface of the robot
 
 Enter a negative amount for the robot to move backwards.
 
+Note:
+
+The robot automatically checks to see how far away a closest object is, and if it is within 10cm of the distance
+that you want the bot to move, the robot will not move
+Ie we are 50 cm away from a wall and we want to go 45cm the robot will stay put
+but if we want to go 39 cm the robot will go that far.
+We may want to change this so that it goes within 10cm of the wall instead of staying put. 
 *************
-turn (float angle)
+turn(float angle)
 
 Enter a positive amount for the robot's desired angle, it will turn right
 Enter a negative amount for the robot to turn left
-Again this might have to change depending on the surface of the robot 
+Again this might have to change depending on the surface of the robot
+
+******
