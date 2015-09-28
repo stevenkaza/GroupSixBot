@@ -1,12 +1,13 @@
 #Completely work in progress, will be merged with UI port code after and moved into appropriate file
 
-#import Tix as tix
+import math #Used for drawing the facing direction line
+
 import tkFileDialog
 import tkMessageBox
 from Tkinter import *
-#from Tkinter import tix
-#from Tkinter.filedialog import *
-#from Tkinter.messagebox import *
+
+
+from PIL import Image, ImageTk
 
 def exitRoomMapper():
 	if tkMessageBox.askyesno('Quitting . . .', 'Are you sure you want to quit?'):
@@ -45,37 +46,12 @@ def buildCanvas(root):
 			outline="#fb0", fill="#fb0")
 	canvas.pack()
 	
-	
-	
-
-#Set Up Main Window
-#def buildMainWindow():
-#	global root
-#	root = Tk()
-#	
-#	#Set window title
-#	root.title("AnonymousBot's Visual Room Mapper")
-	
-	#Set window minimum size
-#	root.minsize(650, 625)
-#
-#	#Set 'X' close behaviour
-#	root.protocol("WM_DELETE_WINDOW", exitRoomMapper)
-#
-#	#Change Background Color
-#	root.configure(background="lavender")
-	
-	#Set up Menu
-#	m = mainMenu(root)
-#	root.configure(menu=m)
-	
-#	return root
 
 def drawPoint(self, data):
 	x0 = int(data[0])
 	y0 = int(data[1])
 	self.c.create_rectangle(x0, y0, x0 + 5, y0 + 5, 
-            outline='black', fill='blue')
+		outline='black', fill='blue')
 
 def drawLine(self, data):
 	#date is a 4 tuple ie (0,0,100,100)
@@ -87,7 +63,43 @@ def drawLine(self, data):
 
 def displayMessage(self, message):
 	self.t.insert(INSERT, message)
+	
+def setupBotIcon(self, data):
+	x0 = int(data[0])
+	y0 = int(data[1])
+	
+	self.botPos = data
+	self.piBotImage = PhotoImage(file = './piBotTest.gif')
+	self.bot = self.c.create_image(x0, y0, image = self.piBotImage)
 
+#Updates where the pi bot is drawn in the canvas
+def updateBotPos(self, data):
+	x0 = int(data[0])
+	y0 = int(data[1])
+	
+	self.c.coords(self.bot, x0, y0)
+	self.botPos = data
+
+#Indicate bots facing direction with a line
+# Takes angle as degrees for now
+# **Needs updated to a updateBotAngle and createBotAngle function
+def drawBotAngle(self, data):
+	angle = data
+	angle = angle / 180.0 * math.pi
+	
+	x0 = int(self.botPos[0])
+	y0 = int(self.botPos[1])
+	
+	difX = math.sin(angle)
+	difY = math.cos(angle)
+	print(difX)
+	print(difY)
+	
+	x1 = x0 + (30 * difX)
+	y1 = y0 - (30 * difY)
+	
+	self.c.create_line(x0,y0,x1,y1)
+	
 class UITesting(Tk):
 	canvas = 0
 	
@@ -121,17 +133,21 @@ class UITesting(Tk):
 		
 		m = mainMenu(self)
 		self.configure(menu=m)
-		
-		#Testing
-		drawLine(self, (0, 0, 50, 50))
-		drawPoint(self, (50, 50))
-		displayMessage(self, "Test")
-		
 	
 
 
 	
 #Main Starts here
 g = UITesting()
-#mw=buildMainWindow()
+
+#Testing
+drawLine(g, (0, 0, 50, 50))
+drawPoint(g, (50, 50))
+displayMessage(g, "Test")
+
+setupBotIcon(g, (50, 50))
+updateBotPos(g, (150, 200))
+
+drawBotAngle(g, 0)
+
 g.mainloop()
