@@ -32,7 +32,14 @@ class Move:
 			time.sleep(distance/12)
 		else:
 			status = False
+			return status
+		#account for the 5 degrees a second/ every 12 cm of curvature to the left
+		anglesToTurn = (distance/12) * 5
+		spinTime = anglesToTurn*0.0053763408602 # degrees per second
+		# telling the robot to spin back since it turns left on its own
+		self.timedSpin(spinTime,'right')
 		self.movement.stop()
+
 		return status
 
 	def timedSpin(self,spinTime,direction):
