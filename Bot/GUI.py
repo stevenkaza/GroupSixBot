@@ -28,15 +28,19 @@ class GUI(Tk):
 
 	def drawOnMap(self, data):
 		#date is a 4 tuple ie (0,0,100,100)
-		x0 = int(data[0])
-		y0 = int(data[1])
-		x1 = int(data[2])
-		y1 = int(data[3])
-		self.c.create_line(x0,y0,x1,y1)
+		x = 0
+		#draw on the map.
 
 	def displayMessage(self, message):
 		self.t.insert(INSERT, message)
 
+	def botLocation(self, location):
+		#location is a 3 tuple. (y,x,a)
+		#y = the bots y cord
+		#x =the bots x cord
+		#a = angle the bot is at. 0 = up, 90 = right etc
+		x = 0
+		self.t.insert(INSERT, str(location)) #just a test
 
 if __name__ == "__main__":
 

@@ -27,6 +27,10 @@ class SocketHelper:
 		func = getattr(self.handler,"drawOnMap")
 		func(data)
 
+	def botLocation(self,data):
+		func = getattr(self.handler,"botLocation")
+		func(data)
+
 	def display(self):
 		
 		while 1:
@@ -44,11 +48,13 @@ class SocketHelper:
 				self.displayMessage(mes)
 
 			elif message == "data":
-				print "IN data"
-				mesStr = self.listener.recv(self.buf) #change so it accepts object (use json)
+				mesStr = self.listener.recv(self.buf)
 				m = json.loads(mesStr)
-				nm = Map(m)
-				self.drawOnMap(nm.points)
+				self.drawOnMap(m)
+			elif message == "bot":
+				mesStr = self.listener.recv(self.buf)
+				m = json.loads(mesStr)
+				self.botLocation(m)
 		
 
 		self.listener.close()

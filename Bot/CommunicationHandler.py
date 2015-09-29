@@ -7,9 +7,9 @@ class CommunicationHandler:
 	def __init__(self,parent = None):
 		self.parent = parent
 
-	def displayMes(self,mes):
+	def displayMessage(self,mes):
 		
-		Handler = 'displayMes_' + mes
+		Handler = 'displayMessage_' + mes
 		
 		if hasattr(self,Handler):
 			func = getattr(self,Handler)
@@ -27,3 +27,11 @@ class CommunicationHandler:
 		elif self.parent:
 			self.parent.drawOnMap(data)
 
+	def botLocation(self):
+		Handler = 'botLocation_' + data
+		
+		if hasattr(self,Handler):
+			func = getattr(self,Handler)
+			func()
+		elif self.parent:
+			self.parent.botLocation(data)

@@ -28,7 +28,7 @@ class AI:
 
 		print "Location: " + str(self.move.location)
 
-		command = raw_input("mes or data?: ")
+		command = raw_input("mes or data or bot?: ")
 
 		if command == "exit":
 			self.com.sendMessage(command)
@@ -46,6 +46,8 @@ class AI:
 				return mes
 			else:
 				self.com.sendMessage(mes)
+		else command == "bot":
+			self.com.sendBotLocation((4,4,90))
 		else:
 			
 			while 1:
