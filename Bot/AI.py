@@ -46,7 +46,7 @@ class AI:
 				return mes
 			else:
 				self.com.sendMessage(mes)
-		else command == "bot":
+		elif command == "bot":
 			self.com.sendBotLocation((4,4,90))
 		else:
 			
