@@ -1,4 +1,4 @@
-from Move import *
+#from Move import *
 from Com import *
 import sys
 import json
