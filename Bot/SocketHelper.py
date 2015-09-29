@@ -20,6 +20,7 @@ class SocketHelper:
 		self.listener,addr = self.server.accept() #waits until 1 socket connects to it
 		
 	def displayMessage(self,mes):
+		print "cat"
 		func = getattr(self.handler,"displayMessage")
 		func(mes)
 
@@ -35,7 +36,8 @@ class SocketHelper:
 		
 		while 1:
 
-			message = self.listener.recv(self.buf)			
+			message = self.listener.recv(self.buf)
+
 			print "Received message: " + message
 
 			if message == "exit":
@@ -45,12 +47,16 @@ class SocketHelper:
 				mes = self.listener.recv(self.buf)
 				if mes == "exit":
 					break
-				self.displayMessage(mes)
+				try:
+					self.displayMessage(mes)
+				except Exception:
+					pass
 
 			elif message == "data":
 				mesStr = self.listener.recv(self.buf)
 				m = json.loads(mesStr)
 				self.drawOnMap(m)
+
 			elif message == "bot":
 				mesStr = self.listener.recv(self.buf)
 				m = json.loads(mesStr)

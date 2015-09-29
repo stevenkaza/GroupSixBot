@@ -14,7 +14,7 @@ class AI:
 			Basically the AI gets information from the sensors (Maybe thats a class aswell?)
 			does its AI stuff, calls move to move the bot and calls com to update the laptop
 		"""
-		self.move = Move()
+		#self.move = Move()
 		self.com = Com(port = port, host = host)
 
 	def sense(self):
@@ -26,7 +26,7 @@ class AI:
 			This entire function will be replaced its just for testing
 		"""
 
-		print "Location: " + str(self.move.location)
+		#print "Location: " + str(self.move.location)
 
 		command = raw_input("mes or data or bot?: ")
 
@@ -47,6 +47,7 @@ class AI:
 			else:
 				self.com.sendMessage(mes)
 		elif command == "bot":
+			self.com.sendMessage('bot')
 			self.com.sendBotLocation((4,4,90))
 		else:
 			
@@ -57,8 +58,10 @@ class AI:
 				if len(inp) != 4:
 					print "Invalid input"
 				else:
-					m = Map((int(inp[0]),int(inp[1]),int(inp[2]),int(inp[3])))
-					self.move.move(int(inp[0]),int(inp[1]))
+					m = []
+					#test data
+					m.append([1,1,1,1,1,1])
+					m.append([2,2,2,2,2,2])
 					self.com.sendMessage("data")
 					self.com.updateMap(m)
 					break

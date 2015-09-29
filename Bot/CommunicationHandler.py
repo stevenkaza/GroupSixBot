@@ -7,9 +7,10 @@ class CommunicationHandler:
 	def __init__(self,parent = None):
 		self.parent = parent
 
-	def displayMessage(self,mes):
+	def displayMes(self,mes):
 		
-		Handler = 'displayMessage_' + mes
+		Handler = 'displayMes_' + mes
+		print mes
 		
 		if hasattr(self,Handler):
 			func = getattr(self,Handler)

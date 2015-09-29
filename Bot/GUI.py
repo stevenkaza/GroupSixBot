@@ -40,6 +40,7 @@ class GUI(Tk):
 		#x =the bots x cord
 		#a = angle the bot is at. 0 = up, 90 = right etc
 		x = 0
+		print "HERE"
 		self.t.insert(INSERT, str(location)) #just a test
 
 if __name__ == "__main__":
