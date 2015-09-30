@@ -20,7 +20,6 @@ class SocketHelper:
 		self.listener,addr = self.server.accept() #waits until 1 socket connects to it
 		
 	def displayMessage(self,mes):
-		print "cat"
 		func = getattr(self.handler,"displayMessage")
 		func(mes)
 
