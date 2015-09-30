@@ -1,15 +1,17 @@
 from Tkinter import *
 from SocketHelper import *
 import threading
+import time
 import thread
 import os
 from socket import *
 import sys
 from Map import *
+import Queue
 
 class GUI(Tk):
 	
-	def __init__(self,port = 13000):
+	def __init__(self,port = 13000 ,q= None):
 		
 		Tk.__init__(self)
 		frameT = Frame(self)
@@ -24,11 +26,15 @@ class GUI(Tk):
 		self.c.pack()
 
 		
-		self.sh = SocketHelper(port = port, handler = self) #GUI needs this line
+		#self.sh = SocketHelper(port = port, handler = self) #GUI needs this line
+
+		self.q = q
+
+		self.t.after(50, self.check_queue)
 
 	def drawOnMap(self, data):
 		#date is a 4 tuple ie (0,0,100,100)
-		x = 0
+		self.c.create_line(0,0,55,34)
 		#draw on the map.
 
 	def displayMessage(self, message):
@@ -39,9 +45,53 @@ class GUI(Tk):
 		#y = the bots y cord
 		#x =the bots x cord
 		#a = angle the bot is at. 0 = up, 90 = right etc
-		x = 0
-		print "HERE"
 		self.t.insert(INSERT, str(location)) #just a test
+
+	def check_queue(self):
+		
+		try:
+			f,arg = self.q.get(block=False)
+		except Queue.Empty:
+			pass
+		else:
+			f(*arg)
+		self.t.after(50, self.check_queue)
+
+def display(q,running):
+	
+	global sh
+	global root
+
+	while running:
+
+		message = sh.listener.recv(sh.buf)
+
+		print "Received message: " + message
+
+		if message == "exit":
+			break
+
+		if message == 'mes':
+			mes = sh.listener.recv(sh.buf)
+			if mes == "exit":
+				break
+			
+			q.put((root.displayMessage,[mes]))
+
+		elif message == "data":
+			mesStr = sh.listener.recv(sh.buf)
+			m = json.loads(mesStr)
+			q.put((root.drawOnMap,[m]))
+
+		elif message == "bot":
+			mesStr = sh.listener.recv(sh.buf)
+			m = json.loads(mesStr)
+			q.put((root.botLocation,[m]))
+		
+
+	sh.listener.close()
+	sh.server.close()
+	os._exit(0)
 
 if __name__ == "__main__":
 
@@ -60,8 +110,18 @@ if __name__ == "__main__":
 
 	print "Using port:" + str(port)
 
-	g = GUI(port)
+	q = Queue.Queue()
+	running = [True]
+	global root
+	root = GUI(q = q,port = port)
 
-	thread.start_new_thread ( g.sh.display,())
+	global sh
+	sh = SocketHelper(port = port)
 
-	g.mainloop()
+	root.t.bind('<Destroy>', lambda x: (running.pop(), x.widget.destroy()))
+
+	thread = threading.Thread(target=display, args=(q,running))
+	thread.setDaemon(True)
+	thread.start()
+
+	root.mainloop()
