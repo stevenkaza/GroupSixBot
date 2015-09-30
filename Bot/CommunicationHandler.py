@@ -10,6 +10,7 @@ class CommunicationHandler:
 	def displayMes(self,mes):
 		
 		Handler = 'displayMes_' + mes
+		print mes
 		
 		if hasattr(self,Handler):
 			func = getattr(self,Handler)
@@ -27,3 +28,11 @@ class CommunicationHandler:
 		elif self.parent:
 			self.parent.drawOnMap(data)
 
+	def botLocation(self):
+		Handler = 'botLocation_' + data
+		
+		if hasattr(self,Handler):
+			func = getattr(self,Handler)
+			func()
+		elif self.parent:
+			self.parent.botLocation(data)

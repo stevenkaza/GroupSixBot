@@ -27,8 +27,12 @@ class Com:
 		self.client.send(str(message))
 
 	def updateMap(self,data):
-		#data needs to be turn into a string (for now)
-		dataStr = json.dumps(vars(data))
+		#data needs to be turn into a string (for now). It will be a 2D array
+		dataStr = json.dumps(data)
+		self.client.send(dataStr)
+
+	def sendBotLocation(self,location):
+		dataStr = json.dumps(location)
 		self.client.send(dataStr)
 
 	def end(self):
