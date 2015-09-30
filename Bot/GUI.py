@@ -11,27 +11,30 @@ import Queue
 
 class GUI(Tk):
 	
-	def __init__(self,port = 13000 ,q= None):
+	def __init__(self,port = 13000 ,queue= None):
 		
 		Tk.__init__(self)
+
+		#all GUI related objects can be changed. However we need to have a Text widget and a Canvas
 		frameT = Frame(self)
 		frameC = Frame(self)
 		frameC.pack(side = RIGHT)
 		frameT.pack(side = RIGHT)
 		
+		#feel free to rename these.
 		self.t = Text(frameT,width = 10,height = 10)
 		self.t.pack()
 
 		self.c = Canvas(frameC,bg = 'red',height = 200, width = 200)
 		self.c.pack()
 
-		
-		#self.sh = SocketHelper(port = port, handler = self) #GUI needs this line
+		self.queue = queue #this is the job queue
 
-		self.q = q
+		self.t.after(50, self.check_queue)#this line needs to stay the same. the variable name can be changed
 
-		self.t.after(50, self.check_queue)
-
+	"""The following 3 functions can be changed to do whatever is best. The only thing that needs to stay the same
+		are the function names and parameter types.
+	"""
 	def drawOnMap(self, data):
 		#date is a 4 tuple ie (0,0,100,100)
 		self.c.create_line(0,0,55,34)
@@ -41,27 +44,31 @@ class GUI(Tk):
 		self.t.insert(INSERT, message)
 
 	def botLocation(self, location):
-		#location is a 3 tuple. (y,x,a)
+		#location is a 3 tuple (ints). (y,x,a)
 		#y = the bots y cord
 		#x =the bots x cord
 		#a = angle the bot is at. 0 = up, 90 = right etc
 		self.t.insert(INSERT, str(location)) #just a test
 
+	"""
+	This function is complete and shouldn't be modified unless you change the 
+	name for the Text widget
+	"""
 	def check_queue(self):
 		
 		try:
-			f,arg = self.q.get(block=False)
+			f,arg = self.queue.get(block=False)
 		except Queue.Empty:
-			pass
+			pass#queue is empty. Nothing to do
 		else:
 			f(*arg)
-		self.t.after(50, self.check_queue)
 
-def display(q,running):
+		self.t.after(50, self.check_queue)#the name 't' can be changed
+
+"""This function is complete. It does not need any modification
+"""
+def display(queue, running, sh, root):
 	
-	global sh
-	global root
-
 	while running:
 
 		message = sh.listener.recv(sh.buf)
@@ -75,24 +82,26 @@ def display(q,running):
 			mes = sh.listener.recv(sh.buf)
 			if mes == "exit":
 				break
-			
-			q.put((root.displayMessage,[mes]))
+			queue.put((root.displayMessage,[mes]))
 
 		elif message == "data":
 			mesStr = sh.listener.recv(sh.buf)
 			m = json.loads(mesStr)
-			q.put((root.drawOnMap,[m]))
+			queue.put((root.drawOnMap,[m]))
 
 		elif message == "bot":
 			mesStr = sh.listener.recv(sh.buf)
 			m = json.loads(mesStr)
-			q.put((root.botLocation,[m]))
+			queue.put((root.botLocation,[m]))
 		
 
 	sh.listener.close()
 	sh.server.close()
 	os._exit(0)
 
+"""
+This main should not be changed
+"""
 if __name__ == "__main__":
 
 	port = 13000
@@ -112,15 +121,14 @@ if __name__ == "__main__":
 
 	q = Queue.Queue()
 	running = [True]
-	global root
-	root = GUI(q = q,port = port)
+	
+	root = GUI(queue = q,port = port)
 
-	global sh
 	sh = SocketHelper(port = port)
 
 	root.t.bind('<Destroy>', lambda x: (running.pop(), x.widget.destroy()))
 
-	thread = threading.Thread(target=display, args=(q,running))
+	thread = threading.Thread(target=display, args=(q,running,sh,root))
 	thread.setDaemon(True)
 	thread.start()
 
