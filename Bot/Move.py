@@ -1,6 +1,7 @@
 from discovery_bot import pins
 from discovery_bot import Movement
 from discovery_bot import Ultrasound
+from servo import Servo
 import time
 import datetime
 
@@ -8,10 +9,16 @@ import datetime
 class Move:
 	TOO_CLOSE  = "Too Close";
 
-	def __init__(self, start = (0,0)):
+	def __init__(self, start = (0,0),leftSpeed = 100, rightSpeed = 100):
 		self.location = start
 		self.x = start[0]
 		self.y = start[1]
+
+		self.leftSpeed = leftSpeed
+		self.right = rightSpeed
+
+		self.left = Servo(pins.SERVO_LEFT_MOTOR)
+		self.right = Servo(pins.SERVO_RIGHT_MOTOR)
 
 		self.us = Ultrasound()
 		self.movement = Movement()
@@ -22,7 +29,7 @@ class Move:
 		#than the closest thing away, that the worst possible thing, so lets check for that first.
 
 		#if the desired distance is greater or equal to the distance away from the closest obstacle
-	 	cmAwayFromWall = self.us.read_normalized()
+		cmAwayFromWall = self.us.read_normalized()
 		if (cmSent >  cmAwayFromWall):
 			return "STOP"
 		elif (cmSent > (cmAwayFromWall - 10)):
@@ -30,6 +37,18 @@ class Move:
 		elif (cmSent < (cmAwayFromWall - 10)):
 			return "GOOD"
 
+	 def normalize(self, val):
+		scale = 0.5 / 100
+		speed = val * scale
+
+		if val >= 0:
+			speed += 0.5
+
+		return speed
+
+	def forward(self, speed = 100):
+		self.left.set_normalized(self.normalize(self.leftSpeed))
+		self.right.set_normalized(self.normalize(-self.rightSpeed))
 
 	def move(self,distance):
 		status = True
@@ -42,7 +61,7 @@ class Move:
 			return distanceMoved
 		elif (result =="GOOD"):
 			print "should be here"
-			self.movement.forward(100)
+			self.forward(100)
 			time.sleep(distance/12)
 		#	return status
 		#account for the 5 degrees a second/ every 12 cm of curvature to the left
@@ -72,7 +91,8 @@ class Move:
 		angle = abs(angle)
 		spinTime = angle*0.0053763408602 # degrees per second
 		self.timedSpin(spinTime,direction)
-bot = Move()
+
+bot = Move(leftSpeed = 100, rightSpeed = 35)
 s = ""
 while(s !='s'):
 	s = raw_input()
