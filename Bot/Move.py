@@ -15,13 +15,16 @@ class Move:
 		self.y = start[1]
 
 		self.leftSpeed = leftSpeed
-		self.right = rightSpeed
+		self.rightSpeed = rightSpeed
 
 		self.left = Servo(pins.SERVO_LEFT_MOTOR)
 		self.right = Servo(pins.SERVO_RIGHT_MOTOR)
 
 		self.us = Ultrasound()
 		self.movement = Movement()
+
+
+		print "Left Speed: ", self.leftSpeed, "\nRight Speed: ", self.rightSpeed
 
 	def checkBoundary(self,cmSent):
 		# situation 1
@@ -37,7 +40,7 @@ class Move:
 		elif (cmSent < (cmAwayFromWall - 10)):
 			return "GOOD"
 
-	 def normalize(self, val):
+	def normalize(self, val):
 		scale = 0.5 / 100
 		speed = val * scale
 
