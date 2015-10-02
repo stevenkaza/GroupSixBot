@@ -1,4 +1,4 @@
-#from Move import *
+from Move import *
 from Com import *
 import sys
 import json
@@ -6,8 +6,8 @@ from Map import *
 
 class AI:
 	room = Map([])
-	#movement = Move()
-	#sensor = Sensor()
+	movement = Move()
+	sensor = Sensor()
     
     #bot = BOT()
 	botAngle = 0
@@ -34,7 +34,7 @@ class AI:
 			Basically the AI gets information from the sensors (Maybe thats a class aswell?)
 			does its AI stuff, calls move to move the bot and calls com to update the laptop
 		"""
-		#self.move = Move()
+		self.move = Move()
 		self.com = Com(port = port, host = host)
 
 	def sense(self):
