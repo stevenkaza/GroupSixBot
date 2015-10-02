@@ -1,5 +1,7 @@
 from Move import *
+from Sensor import *
 from Com import *
+import time
 import sys
 import json
 from Map import *
@@ -8,13 +10,11 @@ class AI:
 	room = Map([])
 	movement = Move()
 	sensor = Sensor()
-    
-    #bot = BOT()
 	botAngle = 0
 	botPos = [0,0]
     
-	turnAngle  = 5 # the angle the bot will turn to sense
-    '''
+	turnAngle  = 15 # the angle the bot will turn to sense
+	'''
 	def mapRoom(self):
 		if 
 		
@@ -25,7 +25,7 @@ class AI:
 				break
 			break
 		return
-    '''
+	'''
 	def __init__(self, port = 13000, host = "localhost"):
 		"""
 			This function has two objects right now
@@ -35,10 +35,8 @@ class AI:
 			does its AI stuff, calls move to move the bot and calls com to update the laptop
 		"""
 		self.move = Move()
-		self.com = Com(port = port, host = host)
-
+		#self.com = Com(port = port, host = host)
 	def sense(self):
-
 		"""
 			This function is a temp function it just takes in input from the user
 			The user can send a message to the laptop or update the map (the map right now is
@@ -63,11 +61,12 @@ class AI:
 				self.turnAngle = self.turnAngle-360
 			if self.botAngle == 0:
 				break
+			time.sleep(1)
 		return points
 
 		#print "Location: " + str(self.move.location)
 
-        '''
+		'''
 		command = raw_input("mes or data or bot?: ")
 
 		if command == "exit":
@@ -108,7 +107,7 @@ class AI:
 
 
 		return command
-        '''
+		'''
 
 if __name__ == "__main__":
 	
@@ -139,13 +138,14 @@ if __name__ == "__main__":
 	print "Starting AI"
 
 	room = Map([])
-	p = sense()
+	p = a.sense()
 	room.updateMap(p)
 	r = room.getMap()
 	for i in r:
 		for j in i:
 			print j
-	a.com.updateMap(room.getMap())
+	print p
+	#a.com.updateMap(room.getMap())
 	
 '''
 	while 1:

@@ -1,7 +1,7 @@
 import json
 import math
 
-MAXVIEW = 12
+MAXVIEW = 90
 
 class Map:
     room = [[8]]
