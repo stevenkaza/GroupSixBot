@@ -14,8 +14,10 @@ class AI:
 	botPos = [0,0]
     
 	turnAngle  = 5 # the angle the bot will turn to sense
-    
+    '''
 	def mapRoom(self):
+		if 
+		
 		while not room.isMapped():
 			sense()
 			route = room.nextRoute()
@@ -23,7 +25,7 @@ class AI:
 				break
 			break
 		return
-    
+    '''
 	def __init__(self, port = 13000, host = "localhost"):
 		"""
 			This function has two objects right now
@@ -44,22 +46,22 @@ class AI:
 			This entire function will be replaced its just for testing
 		"""
 		points = list()
-		for i in range(360/turnAngle):
-			movement.turn(turnAngle)
-			botAngle = botAngle+turnAngle
-			if turnAngle ==0:
-				points.insert(0,[sensor.getDistance(),botAngle])
-			elif turnAngle == 90:
-				points.insert(1,[sensor.getDistance(),botAngle])
-			elif turnAngle == 180:
-				points.insert(2,[sensor.getDistance(),botAngle])
-			elif turnAngle == 270:
-				points.insert(3,[sensor.getDistance(),botAngle])
+		for i in range(360/self.turnAngle):
+			self.movement.turn(self.turnAngle)
+			self.botAngle = self.botAngle+self.turnAngle
+			if self.turnAngle ==0:
+				points.insert(0,[self.sensor.getDistance(),self.botAngle])
+			elif self.turnAngle == 90:
+				points.insert(1,[self.sensor.getDistance(),self.botAngle])
+			elif self.turnAngle == 180:
+				points.insert(2,[self.sensor.getDistance(),self.botAngle])
+			elif self.turnAngle == 270:
+				points.insert(3,[self.sensor.getDistance(),self.botAngle])
 			else:
-				points.append([dist,botAngle])
-			if turnAngle >= 360:
-				turnAngle = turnAngle-360
-			if botAngle == 0:
+				points.append([self.sensor.getDistance(),self.botAngle])
+			if self.turnAngle >= 360:
+				self.turnAngle = self.turnAngle-360
+			if self.botAngle == 0:
 				break
 		return points
 
