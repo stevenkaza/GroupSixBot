@@ -5,7 +5,25 @@ import json
 from Map import *
 
 class AI:
-
+	room = Map([])
+	#movement = Move()
+	#sensor = Sensor()
+    
+    #bot = BOT()
+	botAngle = 0
+	botPos = [0,0]
+    
+	turnAngle  = 5 # the angle the bot will turn to sense
+    
+	def mapRoom(self):
+		while not room.isMapped():
+			sense()
+			route = room.nextRoute()
+			for i in route:
+				break
+			break
+		return
+    
 	def __init__(self, port = 13000, host = "localhost"):
 		"""
 			This function has two objects right now
@@ -25,9 +43,29 @@ class AI:
 			just a X Y coordination)
 			This entire function will be replaced its just for testing
 		"""
+		points = list()
+		for i in range(360/turnAngle):
+			movement.turn(turnAngle)
+			botAngle = botAngle+turnAngle
+			if turnAngle ==0:
+				points.insert(0,[sensor.getDistance(),botAngle])
+			elif turnAngle == 90:
+				points.insert(1,[sensor.getDistance(),botAngle])
+			elif turnAngle == 180:
+				points.insert(2,[sensor.getDistance(),botAngle])
+			elif turnAngle == 270:
+				points.insert(3,[sensor.getDistance(),botAngle])
+			else:
+				points.append([dist,botAngle])
+			if turnAngle >= 360:
+				turnAngle = turnAngle-360
+			if botAngle == 0:
+				break
+		return points
 
 		#print "Location: " + str(self.move.location)
 
+        '''
 		command = raw_input("mes or data or bot?: ")
 
 		if command == "exit":
@@ -68,7 +106,7 @@ class AI:
 
 
 		return command
-
+        '''
 
 if __name__ == "__main__":
 	
@@ -98,7 +136,18 @@ if __name__ == "__main__":
 
 	print "Starting AI"
 
+	room = Map([])
+	p = sense()
+	room.updateMap(p)
+	r = room.getMap()
+	for i in r:
+		for j in i:
+			print j
+	a.com.updateMap(room.getMap())
+	
+'''
 	while 1:
 		c = a.sense()
 		if c == "exit":
 			break
+'''
