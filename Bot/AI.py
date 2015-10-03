@@ -142,8 +142,7 @@ if __name__ == "__main__":
 	room.updateMap(p)
 	r = room.getMap()
 	for i in r:
-		for j in i:
-			print j
+		print i
 	print p
 	#a.com.updateMap(room.getMap())
 	
