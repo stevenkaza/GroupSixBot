@@ -9,12 +9,21 @@ from Tkinter import *
 
 from PIL import Image, ImageTk
 
+windowWidth = 650
+windowHeight = 475
+
+#Map Data Legend
+# 0 -> Empty
+# 1 -> Wall
+# 8 -> Robot
+# 9 -> Unreachable Space
+
 def exitRoomMapper():
 	if tkMessageBox.askyesno('Quitting . . .', 'Are you sure you want to quit?'):
-		g.quit()
+		gui.quit()
 
 def aboutRoomMapper():
-	tkMessageBox.showinfo("About Room Mapper", "Room Mapper Beta V 1.0 \n\n Team: Kory Bryson, Mitchell Cook, Steven Kazavchinski, Zack Licastro, Amanda Reuillon \n\n A tool to visualize room mapper from a Pi Bot room mapper.")
+	tkMessageBox.showinfo("About Room Mapper", "Room Mapper Beta V 1.0 \n\nTeam: \nKory Bryson - Communications Lead, \nMitchell Cook - AI Lead, \nSteven Kazavchinski - Movement and Sensor Lead, \nZack Licastro - UI Co-Lead, \nAmanda Reuillon - UI Co-Lead \n\n A tool to visualize room mapper from a Pi Bot room mapper.")
 	
 #Set Up Menu
 def mainMenu(r):
@@ -30,27 +39,25 @@ def mainMenu(r):
 	fileMenu.add("command", label="Exit", command = exitRoomMapper)
 
 	#Help
-	helpMenu = Menu(m, tearoff=0)
-	helpMenu.add("command", label="About", command = aboutRoomMapper)
+	helpMenu = Menu(m, tearoff = 0)
+	helpMenu.add("command", label = "About", command = aboutRoomMapper)
 	
 
-	m.add("cascade", menu=fileMenu, label="File")
-	m.add("cascade", menu=helpMenu, label="Help")
+	m.add("cascade", menu = fileMenu, label = "File")
+	m.add("cascade", menu = helpMenu, label = "Help")
 
 	return m
 	
-def buildCanvas(root):
-	global canvas 
-	canvas = Canvas(root)
-	canvas.create_rectangle(30, 10, 120, 80, 
-			outline="#fb0", fill="#fb0")
-	canvas.pack()
-	
 
+def mapText(self, data, info):
+	x0 = int(data[0])
+	y0 = int(data[1])
+	self.canvas.create_text(x0, y0, text = info)
+	
 def drawPoint(self, data):
 	x0 = int(data[0])
 	y0 = int(data[1])
-	self.c.create_rectangle(x0, y0, x0 + 5, y0 + 5, 
+	self.canvas.create_rectangle(x0, y0, x0 + 5, y0 + 5, 
 		outline='black', fill='blue')
 
 def drawLine(self, data):
@@ -59,31 +66,30 @@ def drawLine(self, data):
 	y0 = int(data[1])
 	x1 = int(data[2])
 	y1 = int(data[3])
-	self.c.create_line(x0,y0,x1,y1)
+	self.canvas.create_line(x0,y0,x1,y1)
 
 def displayMessage(self, message):
-	self.t.insert(INSERT, message)
+	self.textBox.insert(INSERT, message)
 	
 def setupBotIcon(self, data):
 	x0 = int(data[0])
 	y0 = int(data[1])
 	
 	self.botPos = data
-	self.piBotImage = PhotoImage(file = './piBotTest.gif')
-	self.bot = self.c.create_image(x0, y0, image = self.piBotImage)
+	self.piBotImage = PhotoImage(file = './anonBot.gif')
+	self.bot = self.canvas.create_image(x0, y0, image = self.piBotImage)
 
 #Updates where the pi bot is drawn in the canvas
 def updateBotPos(self, data):
 	x0 = int(data[0])
 	y0 = int(data[1])
 	
-	self.c.coords(self.bot, x0, y0)
+	self.canvas.coords(self.bot, x0, y0)
 	self.botPos = data
 
 #Indicate bots facing direction with a line
-# Takes angle as degrees for now
-# **Needs updated to a updateBotAngle and createBotAngle function
-def drawBotAngle(self, data):
+#Takes angle as degrees for now
+def setupBotAngle(self, data):
 	angle = data
 	angle = angle / 180.0 * math.pi
 	
@@ -92,16 +98,31 @@ def drawBotAngle(self, data):
 	
 	difX = math.sin(angle)
 	difY = math.cos(angle)
-	print(difX)
-	print(difY)
 	
 	x1 = x0 + (30 * difX)
 	y1 = y0 - (30 * difY)
 	
-	self.c.create_line(x0,y0,x1,y1)
+	self.botAngleLine = self.canvas.create_line(x0,y0,x1,y1)
+	
+def updateBotAngle(self, data):
+	angle = data
+	angle = angle / 180.0 * math.pi
+	
+	x0 = int(self.botPos[0])
+	y0 = int(self.botPos[1])
+	
+	difX = math.sin(angle)
+	difY = math.cos(angle)
+	
+	x1 = x0 + (30 * difX)
+	y1 = y0 - (30 * difY)
+	
+	#Remove Old Line
+	self.canvas.delete(self.botAngleLine)
+	#Place New Line
+	self.botAngleLine = self.canvas.create_line(x0,y0,x1,y1)
 	
 class UITesting(Tk):
-	canvas = 0
 	
 	def __init__(self):
 		Tk.__init__(self)
@@ -110,44 +131,46 @@ class UITesting(Tk):
 		self.title("AnonymousBot's Visual Room Mapper")
 		
 		#Set window minimum size
-		self.minsize(650, 475)
+		self.minsize(windowWidth, windowHeight)
 
 		#Set 'X' close behaviour
 		self.protocol("WM_DELETE_WINDOW", exitRoomMapper)
 
 		#Change Background Color
-		self.configure(background="lavender")
+		self.configure(background = "lavender")
 		
-		frameT = Frame(self)
-		frameC = Frame(self)
-		frameC.pack(side = RIGHT)
-		frameT.pack(side = RIGHT)
+		textFrame = Frame(self)
+		canvasFrame = Frame(self)
+		canvasFrame.pack(side = RIGHT)
+		textFrame.pack(side = RIGHT)
 		
-		#self.t = Text(frameT,width = 10,height = 10)
-		self.t = Text(frameT, width = 20, bg = 'grey')
-		self.t.pack()
+		#Create the Textbox
+		self.textBox = Text(textFrame, width = 20, bg = 'grey')
+		self.textBox.pack()
 
-		#self.c = Canvas(frameC,bg = 'red',height = 200, width = 200)
-		self.c = Canvas(frameC, bg = 'white', height = 490)
-		self.c.pack()
+		#Create the Canvas
+		self.canvas = Canvas(canvasFrame, bg = 'white', height = 490)
+		self.canvas.pack()
 		
 		m = mainMenu(self)
-		self.configure(menu=m)
-	
-
-
+		self.configure(menu = m)
 	
 #Main Starts here
-g = UITesting()
+gui = UITesting()
+
+setupBotIcon(gui, (50, 50))
+setupBotAngle(gui, 0)
 
 #Testing
-drawLine(g, (0, 0, 50, 50))
-drawPoint(g, (50, 50))
-displayMessage(g, "Test")
+isTesting = True
 
-setupBotIcon(g, (50, 50))
-updateBotPos(g, (150, 200))
+if isTesting == True:
+	drawLine(gui, (0, 0, 50, 50))
+	drawPoint(gui, (50, 50))
+	displayMessage(gui, "Test")
+	updateBotPos(gui, (150, 200))
+	updateBotAngle(gui, 90)
+	mapText(gui, (300, 300), "Test")
 
-drawBotAngle(g, 0)
 
-g.mainloop()
+gui.mainloop()
