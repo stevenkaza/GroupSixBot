@@ -52,7 +52,7 @@ def mainMenu(r):
 def mapText(self, data, info):
 	x0 = int(data[0])
 	y0 = int(data[1])
-	self.canvas.create_text(x0, y0, text = info)
+	self.canvas.create_text(x0, y0, text = info, fill = 'black')
 	
 def drawPoint(self, data):
 	x0 = int(data[0])
@@ -68,9 +68,6 @@ def drawLine(self, data):
 	y1 = int(data[3])
 	self.canvas.create_line(x0,y0,x1,y1)
 
-def displayMessage(self, message):
-	self.textBox.insert(INSERT, message)
-	
 def setupBotIcon(self, data):
 	x0 = int(data[0])
 	y0 = int(data[1])
@@ -121,9 +118,67 @@ def updateBotAngle(self, data):
 	self.canvas.delete(self.botAngleLine)
 	#Place New Line
 	self.botAngleLine = self.canvas.create_line(x0,y0,x1,y1)
+
+"""
+	Functions called by AI
+"""
+def drawOnMap(self, data):
+	#draw the map.
+	print data	
+
+def displayMessage(self, message):
+	self.textBox.insert(INSERT, message)
 	
-class UITesting(Tk):
+def botLocation(self, location):
+	#location is a 3 tuple (ints). (y,x,a)
+	#y = the bots y cord
+	#x = the bots x cord
+	#a = angle the bot is at. 0 = up, 90 = right etc
+	y = location[0]
+	x = location[1]
+	angle = location[2]
 	
+	updateBotPos(self, (x,y))
+	updateBotAngle(self, angle)
+	
+	self.textBox.insert(INSERT, str(location)) #just a test
+	
+"""
+	This function checks the socket for messages for the GUI
+"""
+def display(queue, running, sh, root):
+	
+	while running:
+
+		message = sh.listener.recv(sh.buf)
+
+		print "Received message: " + message
+
+		if message == "exit":
+			break
+
+		if message == 'mes':
+			mes = sh.listener.recv(sh.buf)
+			if mes == "exit":
+				break
+			queue.put((root.displayMessage,[mes]))
+
+		elif message == "data":
+			mesStr = sh.listener.recv(sh.buf)
+			m = json.loads(mesStr)
+			queue.put((root.drawOnMap,[m]))
+
+		elif message == "bot":
+			mesStr = sh.listener.recv(sh.buf)
+			m = json.loads(mesStr)
+			queue.put((root.botLocation,[m]))
+		
+
+	sh.listener.close()
+	sh.server.close()
+	os._exit(0)
+	
+class UITesting(Tk):	
 	def __init__(self):
 		Tk.__init__(self)
 		
@@ -154,6 +209,19 @@ class UITesting(Tk):
 		
 		m = mainMenu(self)
 		self.configure(menu = m)
+		
+	"""
+		This function checks queue intermittently.
+	"""
+	def check_queue(self):
+		try:
+			f,arg = self.queue.get(block = False)
+		except Queue.Empty:
+			pass#queue is empty. Nothing to do
+		else:
+			f(*arg)
+
+		self.textBox.after(50, self.check_queue)
 	
 #Main Starts here
 gui = UITesting()
