@@ -1,4 +1,11 @@
+import math #Used for drawing the facing direction line
+
+import tkFileDialog
+import tkMessageBox
 from Tkinter import *
+
+from PIL import Image, ImageTk
+
 from SocketHelper import *
 import threading
 import time
@@ -9,63 +16,157 @@ import sys
 from Map import *
 import Queue
 
-class GUI(Tk):
+windowWidth = 675
+windowHeight = 500
+
+canvasWidth = 450
+canvasHeight = 450
+
+mapWidth = 1200.0
+mapHeight = 1200.0
+
+#Map Data Legend
+# 0 -> Empty
+# 1 -> Wall
+# 8 -> Robot
+# 9 -> Unreachable Space
+
+#Position is (x,y), returns new position as (x,y) in canvas space
+def worldSpaceToCanvasSpace(position):
+	newPosition = ((position[0] / mapWidth) * canvasWidth, (position[1] / mapHeight) * canvasHeight)
+	return newPosition
+
+def exitRoomMapper():
+	if tkMessageBox.askyesno('Quitting . . .', 'Are you sure you want to quit?'):
+		gui.quit()
+		
+def saveMap(self):
+	self.canvas.postscript(file = "map.ps", colormode = 'color')
 	
-	def __init__(self,port = 13000 ,queue= None):
-		
-		Tk.__init__(self)
+def saveTextLog(self):
+	filename = tkFileDialog.asksaveasfilename(defaultextension='.txt',filetypes = (('Text files', '*.txt'),('Python files', '*.py *.pyw'),('All files', '*.*')))
+	if filename is None:
+		return
+	file = open (filename, mode = 'w')
+	file.write(self.textBox.get(1.0, END))
+	file.close()
 
-		#all GUI related objects can be changed. However we need to have a Text widget and a Canvas
-		frameT = Frame(self)
-		frameC = Frame(self)
-		frameC.pack(side = RIGHT)
-		frameT.pack(side = RIGHT)
-		
-		#feel free to rename these.
-		self.t = Text(frameT,width = 10,height = 10)
-		self.t.pack()
+def aboutRoomMapper():
+	tkMessageBox.showinfo("About Room Mapper", "Room Mapper Beta V 1.0 \n\nTeam: \nKory Bryson - Communications Lead, \nMitchell Cook - AI Lead, \nSteven Kazavchinski - Movement and Sensor Lead, \nZack Licastro - UI Co-Lead, \nAmanda Reuillon - UI Co-Lead \n\n A tool to visualize room mapper from a Pi Bot room mapper.")
+	
+#Set Up Menu
+def mainMenu(r):
+	m = Menu(r)
 
-		self.c = Canvas(frameC,bg = 'red',height = 200, width = 200)
-		self.c.pack()
+	global fileMenu
+	global helpMenu
 
-		self.queue = queue #this is the job queue
+	#File
+	fileMenu = Menu(m, tearoff=0)
+	#fileMenu.add("command", label="Save Map", command = saveMap, state = DISABLED)
+	#fileMenu.add("command", label="Save As", command = saveFileAs, state = DISABLED)
+	
+	fileMenu.add("command", label="Save Map to PostScript", command = lambda: saveMap(r))
+	fileMenu.add("command", label="Save Text Log", command = lambda: saveTextLog(r))
+	fileMenu.add("command", label="Exit", command = exitRoomMapper)
 
-		self.t.after(50, self.check_queue)#this line needs to stay the same. the variable name can be changed
+	#Help
+	helpMenu = Menu(m, tearoff = 0)
+	helpMenu.add("command", label = "About", command = aboutRoomMapper)
+	
 
-	"""The following 3 functions can be changed to do whatever is best. The only thing that needs to stay the same
-		are the function names and parameter types.
-	"""
-	def drawOnMap(self, data):
-		#date is a 4 tuple ie (0,0,100,100)
-		self.c.create_line(0,0,55,34)
-		#draw on the map.
+	m.add("cascade", menu = fileMenu, label = "File")
+	m.add("cascade", menu = helpMenu, label = "Help")
 
-	def displayMessage(self, message):
-		self.t.insert(INSERT, message)
+	return m
+	
 
-	def botLocation(self, location):
-		#location is a 3 tuple (ints). (y,x,a)
-		#y = the bots y cord
-		#x =the bots x cord
-		#a = angle the bot is at. 0 = up, 90 = right etc
-		self.t.insert(INSERT, str(location)) #just a test
+def mapText(self, data, info):
+	data = worldSpaceToCanvasSpace(data)
+	
+	x0 = int(data[0])
+	y0 = int(data[1])
+	self.canvas.create_text(x0, y0, text = info, fill = 'black')
+	
+def drawPoint(self, data):
+	data = worldSpaceToCanvasSpace(data)
+	
+	x0 = int(data[0])
+	y0 = int(data[1])
+	self.canvas.create_rectangle(x0, y0, x0 + 5, y0 + 5, 
+		outline='black', fill='blue')
 
-	"""
-	This function is complete and shouldn't be modified unless you change the 
-	name for the Text widget
-	"""
-	def check_queue(self):
-		
-		try:
-			f,arg = self.queue.get(block=False)
-		except Queue.Empty:
-			pass#queue is empty. Nothing to do
-		else:
-			f(*arg)
+#Data is (x0, y0, x1, y1)
+def drawLine(self, data):
+	startPoint = (data[0], data[1])
+	endPoint = (data[2], data[3])
+	
+	startPoint = worldSpaceToCanvasSpace(startPoint)
+	endPoint = worldSpaceToCanvasSpace(endPoint)
+	
+	x0 = int(startPoint[0])
+	y0 = int(startPoint[1])
+	x1 = int(endPoint[0])
+	y1 = int(endPoint[1])
+	self.canvas.create_line(x0,y0,x1,y1)
 
-		self.t.after(50, self.check_queue)#the name 't' can be changed
+def setupBotIcon(self, data):
+	data = worldSpaceToCanvasSpace(data)
+	x0 = int(data[0])
+	y0 = int(data[1])
+	
+	self.botPos = data
+	self.piBotImage = PhotoImage(file = './anonBot.gif')
+	self.bot = self.canvas.create_image(x0, y0, image = self.piBotImage)
 
-"""This function is complete. It does not need any modification
+#Updates where the pi bot is drawn in the canvas
+def updateBotPos(self, data):
+	data = worldSpaceToCanvasSpace(data)
+	x0 = int(data[0])
+	y0 = int(data[1])
+	
+	self.canvas.coords(self.bot, x0, y0)
+	self.botPos = data
+
+#Indicate bots facing direction with a line
+#Takes angle as degrees for now
+def setupBotAngle(self, data):
+	angle = data
+	angle = angle / 180.0 * math.pi
+	
+	x0 = int(self.botPos[0])
+	y0 = int(self.botPos[1])
+	
+	difX = math.sin(angle)
+	difY = math.cos(angle)
+	
+	x1 = x0 + (30 * difX)
+	y1 = y0 - (30 * difY)
+	
+	self.botAngleLine = self.canvas.create_line(x0,y0,x1,y1)
+	
+def updateBotAngle(self, data):
+	angle = data
+	angle = angle / 180.0 * math.pi
+	
+	x0 = int(self.botPos[0])
+	y0 = int(self.botPos[1])
+	
+	difX = math.sin(angle)
+	difY = math.cos(angle)
+	
+	x1 = x0 + (30 * difX)
+	y1 = y0 - (30 * difY)
+	
+	#Remove Old Line
+	self.canvas.delete(self.botAngleLine)
+	#Place New Line
+	self.botAngleLine = self.canvas.create_line(x0,y0,x1,y1)
+
+
+	
+"""
+	This function checks the socket for messages for the GUI
 """
 def display(queue, running, sh, root):
 	
@@ -99,11 +200,88 @@ def display(queue, running, sh, root):
 	sh.server.close()
 	os._exit(0)
 
+class GUI(Tk):
+	def __init__(self, port = 13000 , queue = None):
+		
+		Tk.__init__(self)
+		
+		#Set window title
+		self.title("AnonymousBot's Visual Room Mapper")
+		
+		#Set window minimum size
+		self.minsize(windowWidth, windowHeight)
+		self.maxsize(windowWidth, windowHeight)
+
+		#Set 'X' close behaviour
+		self.protocol("WM_DELETE_WINDOW", exitRoomMapper)
+
+		#Change Background Color
+		self.configure(background = "lavender")
+		
+		textFrame = Frame(self)
+		canvasFrame = Frame(self)
+		canvasFrame.pack(side = RIGHT)
+		textFrame.pack(side = RIGHT)
+		
+		#Create the Textbox
+		self.textBox = Text(textFrame, width = 20, height = canvasHeight + 40, bg = 'grey')
+		self.textBox.pack()
+
+		#Create the Canvas
+		self.canvas = Canvas(canvasFrame, width = canvasHeight + 40, height = canvasHeight + 40, bg = 'white')
+		self.canvas.pack()
+		
+		m = mainMenu(self)
+		self.configure(menu = m)
+
+		self.queue = queue #this is the job queue
+
+		self.textBox.after(50, self.check_queue)
+
+	"""
+		Functions called by AI
+	"""
+	def drawOnMap(self, data):
+		#draw the map.
+		print data	
+
+	def displayMessage(self, message):
+		self.textBox.insert(INSERT, message)
+		
+	def botLocation(self, location):
+		#location is a 3 tuple (ints). (y,x,a)
+		#y = the bots y cord
+		#x = the bots x cord
+		#a = angle the bot is at. 0 = up, 90 = right etc
+		y = location[0]
+		x = location[1]
+		angle = location[2]
+		
+		updateBotPos(self, (x,y))
+		updateBotAngle(self, angle)
+		
+		self.textBox.insert(INSERT, str(location)) #just a test
+
+	"""
+		This function checks queue intermittently.
+	"""
+	def check_queue(self):
+		
+		try:
+			f,arg = self.queue.get(block=False)
+		except Queue.Empty:
+			pass#queue is empty. Nothing to do
+		else:
+			f(*arg)
+
+		self.textBox.after(50, self.check_queue)
+
+
 """
-This main should not be changed
+	Main Starts Here
 """
 if __name__ == "__main__":
-
+	
 	port = 13000
 
 	if len(sys.argv) != 2:
@@ -122,14 +300,29 @@ if __name__ == "__main__":
 	q = Queue.Queue()
 	running = [True]
 	
-	root = GUI(queue = q,port = port)
+	gui = GUI(queue = q,port = port)
 
 	sh = SocketHelper(port = port)
 
-	root.t.bind('<Destroy>', lambda x: (running.pop(), x.widget.destroy()))
+	gui.textBox.bind('<Destroy>', lambda x: (running.pop(), x.widget.destroy()))
 
-	thread = threading.Thread(target=display, args=(q,running,sh,root))
+	thread = threading.Thread(target = display, args = (q, running, sh, gui))
 	thread.setDaemon(True)
 	thread.start()
+	
+	setupBotIcon(gui, (mapWidth / 2.0, mapHeight / 2.0))
+	setupBotAngle(gui, 0)
 
-	root.mainloop()
+	#Testing
+	isTesting = False
+
+	if isTesting == True:
+		drawLine(gui, (0, 0, 50, 50))
+		drawPoint(gui, (50, 50))
+		gui.displayMessage("Test")
+		updateBotPos(gui, (600, 600))
+		updateBotAngle(gui, 90)
+		mapText(gui, (300, 300), "Test")
+	
+
+	gui.mainloop()
