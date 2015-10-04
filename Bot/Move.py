@@ -91,11 +91,10 @@ class Move:
 		else:
 			direction = 'left'
 		angle = abs(angle)
-		angle = angle + 360
 		spinTime = angle*0.0053763408602 # degrees per second
 		self.timedSpin(spinTime,direction)
 
-if __name__ == "main":
+if __name__ == "__main__":
 	bot = Move(leftSpeed = 100, rightSpeed = 20)
 	s = ""
 	while(s !='s'):
@@ -103,8 +102,6 @@ if __name__ == "main":
 		if (s!='s'):
 			print "distance away from closest: "
 			print bot.us.read_normalized()
-			rSpeed = raw_input()
-			bot.rightSpeed = float(rSpeed)
-			print bot.move(float(s))
-		
+			print bot.turn(float(s))
+
 	bot.movement.stop()
