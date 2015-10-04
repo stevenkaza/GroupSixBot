@@ -49,8 +49,8 @@ class Move:
 		return speed
 
 	def forward(self, speed = 100):
-		self.left.set_normalized(self.normalize(self.leftSpeed))
-		self.right.set_normalized(self.normalize(-self.rightSpeed))
+		self.left.set_normalized(1.0)
+		self.right.set_normalized(-self.rightSpeed)
 
 	def move(self,distance):
 		status = True
@@ -64,7 +64,7 @@ class Move:
 		elif (result =="GOOD"):
 			print "should be here"
 			self.forward(100)
-			time.sleep(distance/12)
+			time.sleep(distance/11.2)
 		#	return status
 		#account for the 5 degrees a second/ every 12 cm of curvature to the left
 		distanceMoved = cmAwayFromWall - self.us.read_normalized()
@@ -95,7 +95,7 @@ class Move:
 		self.timedSpin(spinTime,direction)
 
 if __name__ == "__main__":
-	bot = Move(leftSpeed = 100, rightSpeed = 20)
+	bot = Move(leftSpeed = 100, rightSpeed = 0.40)
 	s = ""
 	while(s !='s'):
 		s = raw_input()
