@@ -6,9 +6,9 @@ class Sensor:
 	def __init__(self):
 
 		self.us = Ultrasound()
-		self.camera = PiCamera(resolution = (512,320))
-		self.camera.hflip = True
-		self.camera.vflip = True
+	#	self.camera = PiCamera(resolution = (512,320))
+	#	self.camera.hflip = True
+	#	self.camera.vflip = True
 
 	def takePicture(self, name = "testPic", extention = "jpeg"):
 
@@ -39,7 +39,6 @@ class Sensor:
 			listSense.append(self.us.read_normalized())
 
 		listSense = self.removeOutLiers(listSense)
-		print float(sum(listSense))/float(len(listSense))
 		return float(sum(listSense))/float(len(listSense))
 
 	def isWall(self, colours={'white':1,'black' :1}):
@@ -60,7 +59,7 @@ class Sensor:
 		print black,others
 
 		return black/(others + black)
-		
+
 
 
 
@@ -71,5 +70,3 @@ if __name__ == "__main__":
 	raw_input("Start")
 	s.takePicture(i.name, i.extention)
 	print s.isWall(i.process(i.name, i.extention))
-
-

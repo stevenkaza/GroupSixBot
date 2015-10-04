@@ -1,6 +1,7 @@
 from discovery_bot import pins
 from discovery_bot import Movement
 from discovery_bot import Ultrasound
+from Sensor import *
 from servo import Servo
 import time
 import datetime
@@ -19,6 +20,7 @@ class Move:
 
 		self.left = Servo(pins.SERVO_LEFT_MOTOR)
 		self.right = Servo(pins.SERVO_RIGHT_MOTOR)
+		self.sensor = Sensor()
 
 		self.us = Ultrasound()
 		self.movement = Movement()
@@ -32,7 +34,7 @@ class Move:
 		#than the closest thing away, that the worst possible thing, so lets check for that first.
 
 		#if the desired distance is greater or equal to the distance away from the closest obstacle
-		cmAwayFromWall = self.us.read_normalized()
+		cmAwayFromWall = self.sensor.getDistance()
 		if (cmSent >  cmAwayFromWall):
 			return "STOP"
 		elif (cmSent > (cmAwayFromWall - 10)):
@@ -55,19 +57,19 @@ class Move:
 	def move(self,distance):
 		status = True
 		result = self.checkBoundary(distance)
-		cmAwayFromWall = self.us.read_normalized()
+		cmAwayFromWall = self.sensor.getDistance()
+		print cmAwayFromWall
 		if (result == "STOP"):
 
 			distanceMoved = 0
 			self.movement.stop()
 			return distanceMoved
 		elif (result =="GOOD"):
-			print "should be here"
 			self.forward(100)
 			time.sleep(distance/11.2)
 		#	return status
 		#account for the 5 degrees a second/ every 12 cm of curvature to the left
-		distanceMoved = cmAwayFromWall - self.us.read_normalized()
+		distanceMoved = cmAwayFromWall - self.sensor.getDistance()
 		#anglesToTurn = (distance/12) * 5
 		#spinTime = anglesToTurn*0.0053763408602 # degrees per second
 		# telling the robot to spin back since it turns left on its own
@@ -101,7 +103,6 @@ if __name__ == "__main__":
 		s = raw_input()
 		if (s!='s'):
 			print "distance away from closest: "
-			print bot.us.read_normalized()
-			print bot.turn(float(s))
+			print bot.move(float(s))
 
 	bot.movement.stop()
