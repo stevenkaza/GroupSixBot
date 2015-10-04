@@ -6,8 +6,17 @@ import tkFileDialog
 import tkMessageBox
 from Tkinter import *
 
-
 from PIL import Image, ImageTk
+
+#from SocketHelper import *
+import threading
+import time
+import thread
+import os
+#from socket import *
+import sys
+#from Map import *
+import Queue
 
 windowWidth = 675
 windowHeight = 500
@@ -35,9 +44,6 @@ def exitRoomMapper():
 		
 def saveMap(self):
 	self.canvas.postscript(file = "map.ps", colormode = 'color')
-	#These may work on Linux or Mac?
-	#img = Image.open("map.ps")
-	#img.save("map.gif", "gif")
 	
 def saveTextLog(self):
 	filename = tkFileDialog.asksaveasfilename(defaultextension='.txt',filetypes = (('Text files', '*.txt'),('Python files', '*.py *.pyw'),('All files', '*.*')))
@@ -158,30 +164,8 @@ def updateBotAngle(self, data):
 	self.canvas.delete(self.botAngleLine)
 	#Place New Line
 	self.botAngleLine = self.canvas.create_line(x0,y0,x1,y1)
-
-"""
-	Functions called by AI
-"""
-def drawOnMap(self, data):
-	#draw the map.
-	print data	
-
-def displayMessage(self, message):
-	self.textBox.insert(INSERT, message)
 	
-def botLocation(self, location):
-	#location is a 3 tuple (ints). (y,x,a)
-	#y = the bots y cord
-	#x = the bots x cord
-	#a = angle the bot is at. 0 = up, 90 = right etc
-	y = location[0]
-	x = location[1]
-	angle = location[2]
 	
-	updateBotPos(self, (x,y))
-	updateBotAngle(self, angle)
-	
-	self.textBox.insert(INSERT, str(location)) #just a test
 	
 """
 	This function checks the socket for messages for the GUI
@@ -251,6 +235,34 @@ class UITesting(Tk):
 		m = mainMenu(self)
 		self.configure(menu = m)
 		
+		#self.queue = queue #this is the job queue
+
+		#self.textBox.after(50, self.check_queue)
+	
+	"""
+		Functions called by AI
+	"""
+	def drawOnMap(self, data):
+		#draw the map.
+		print data	
+
+	def displayMessage(self, message):
+		self.textBox.insert(INSERT, message)
+		
+	def botLocation(self, location):
+		#location is a 3 tuple (ints). (y,x,a)
+		#y = the bots y cord
+		#x = the bots x cord
+		#a = angle the bot is at. 0 = up, 90 = right etc
+		y = location[0]
+		x = location[1]
+		angle = location[2]
+		
+		updateBotPos(self, (x,y))
+		updateBotAngle(self, angle)
+		
+		self.textBox.insert(INSERT, str(location)) #just a test
+	
 	"""
 		This function checks queue intermittently.
 	"""
@@ -265,8 +277,37 @@ class UITesting(Tk):
 		self.textBox.after(50, self.check_queue)
 	
 #Main Starts here
-gui = UITesting()
 
+"""
+	port = 13000
+
+	if len(sys.argv) != 2:
+			print "using default port number 13000"
+			print "To use a different port number include the number at the end of the command"
+			print "ex: python GUI.py 8080"
+		else:
+			try:
+				port = int(sys.argv[1])
+			except ValueError:
+				print "Please enter an integer for the port number"
+				print "using default port number 13000"
+
+		print "Using port:" + str(port)
+
+		q = Queue.Queue()
+		running = [True]
+"""
+
+gui = UITesting()
+"""
+	sh = SocketHelper(port = port)
+
+	gui.textBox.bind('<Destroy>', lambda x: (running.pop(), x.widget.destroy()))
+
+	thread = threading.Thread(target = display, args = (q, running, sh, gui))
+	thread.setDaemon(True)
+	thread.start()
+"""
 setupBotIcon(gui, (mapWidth / 2.0, mapHeight / 2.0))
 setupBotAngle(gui, 0)
 
@@ -276,7 +317,7 @@ isTesting = True
 if isTesting == True:
 	drawLine(gui, (0, 0, 50, 50))
 	drawPoint(gui, (50, 50))
-	displayMessage(gui, "Test")
+	gui.displayMessage("Test")
 	updateBotPos(gui, (600, 600))
 	updateBotAngle(gui, 90)
 	mapText(gui, (300, 300), "Test")
