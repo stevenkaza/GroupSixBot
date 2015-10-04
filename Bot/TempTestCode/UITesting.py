@@ -9,8 +9,14 @@ from Tkinter import *
 
 from PIL import Image, ImageTk
 
-windowWidth = 650
-windowHeight = 475
+windowWidth = 675
+windowHeight = 500
+
+canvasWidth = 450
+canvasHeight = 450
+
+mapWidth = 1200.0
+mapHeight = 1200.0
 
 #Map Data Legend
 # 0 -> Empty
@@ -18,9 +24,28 @@ windowHeight = 475
 # 8 -> Robot
 # 9 -> Unreachable Space
 
+#Position is (x,y), returns new position as (x,y) in canvas space
+def worldSpaceToCanvasSpace(position):
+	newPosition = ((position[0] / mapWidth) * canvasWidth, (position[1] / mapHeight) * canvasHeight)
+	return newPosition
+
 def exitRoomMapper():
 	if tkMessageBox.askyesno('Quitting . . .', 'Are you sure you want to quit?'):
 		gui.quit()
+		
+def saveMap(self):
+	self.canvas.postscript(file = "map.ps", colormode = 'color')
+	#These may work on Linux or Mac?
+	#img = Image.open("map.ps")
+	#img.save("map.gif", "gif")
+	
+def saveTextLog(self):
+	filename = tkFileDialog.asksaveasfilename(defaultextension='.txt',filetypes = (('Text files', '*.txt'),('Python files', '*.py *.pyw'),('All files', '*.*')))
+	if filename is None:
+		return
+	file = open (filename, mode = 'w')
+	file.write(self.textBox.get(1.0, END))
+	file.close()
 
 def aboutRoomMapper():
 	tkMessageBox.showinfo("About Room Mapper", "Room Mapper Beta V 1.0 \n\nTeam: \nKory Bryson - Communications Lead, \nMitchell Cook - AI Lead, \nSteven Kazavchinski - Movement and Sensor Lead, \nZack Licastro - UI Co-Lead, \nAmanda Reuillon - UI Co-Lead \n\n A tool to visualize room mapper from a Pi Bot room mapper.")
@@ -34,8 +59,11 @@ def mainMenu(r):
 
 	#File
 	fileMenu = Menu(m, tearoff=0)
-	#fileMenu.add("command", label="Save", command = saveFile, state = DISABLED)
+	#fileMenu.add("command", label="Save Map", command = saveMap, state = DISABLED)
 	#fileMenu.add("command", label="Save As", command = saveFileAs, state = DISABLED)
+	
+	fileMenu.add("command", label="Save Map to PostScript", command = lambda: saveMap(r))
+	fileMenu.add("command", label="Save Text Log", command = lambda: saveTextLog(r))
 	fileMenu.add("command", label="Exit", command = exitRoomMapper)
 
 	#Help
@@ -50,25 +78,36 @@ def mainMenu(r):
 	
 
 def mapText(self, data, info):
+	data = worldSpaceToCanvasSpace(data)
+	
 	x0 = int(data[0])
 	y0 = int(data[1])
 	self.canvas.create_text(x0, y0, text = info, fill = 'black')
 	
 def drawPoint(self, data):
+	data = worldSpaceToCanvasSpace(data)
+	
 	x0 = int(data[0])
 	y0 = int(data[1])
 	self.canvas.create_rectangle(x0, y0, x0 + 5, y0 + 5, 
 		outline='black', fill='blue')
 
+#Data is (x0, y0, x1, y1)
 def drawLine(self, data):
-	#date is a 4 tuple ie (0,0,100,100)
-	x0 = int(data[0])
-	y0 = int(data[1])
-	x1 = int(data[2])
-	y1 = int(data[3])
+	startPoint = (data[0], data[1])
+	endPoint = (data[2], data[3])
+	
+	startPoint = worldSpaceToCanvasSpace(startPoint)
+	endPoint = worldSpaceToCanvasSpace(endPoint)
+	
+	x0 = int(startPoint[0])
+	y0 = int(startPoint[1])
+	x1 = int(endPoint[0])
+	y1 = int(endPoint[1])
 	self.canvas.create_line(x0,y0,x1,y1)
 
 def setupBotIcon(self, data):
+	data = worldSpaceToCanvasSpace(data)
 	x0 = int(data[0])
 	y0 = int(data[1])
 	
@@ -78,6 +117,7 @@ def setupBotIcon(self, data):
 
 #Updates where the pi bot is drawn in the canvas
 def updateBotPos(self, data):
+	data = worldSpaceToCanvasSpace(data)
 	x0 = int(data[0])
 	y0 = int(data[1])
 	
@@ -187,6 +227,7 @@ class UITesting(Tk):
 		
 		#Set window minimum size
 		self.minsize(windowWidth, windowHeight)
+		self.maxsize(windowWidth, windowHeight)
 
 		#Set 'X' close behaviour
 		self.protocol("WM_DELETE_WINDOW", exitRoomMapper)
@@ -200,11 +241,11 @@ class UITesting(Tk):
 		textFrame.pack(side = RIGHT)
 		
 		#Create the Textbox
-		self.textBox = Text(textFrame, width = 20, bg = 'grey')
+		self.textBox = Text(textFrame, width = 20, height = canvasHeight + 40, bg = 'grey')
 		self.textBox.pack()
 
 		#Create the Canvas
-		self.canvas = Canvas(canvasFrame, bg = 'white', height = 490)
+		self.canvas = Canvas(canvasFrame, width = canvasHeight + 40, height = canvasHeight + 40, bg = 'white')
 		self.canvas.pack()
 		
 		m = mainMenu(self)
@@ -226,7 +267,7 @@ class UITesting(Tk):
 #Main Starts here
 gui = UITesting()
 
-setupBotIcon(gui, (50, 50))
+setupBotIcon(gui, (mapWidth / 2.0, mapHeight / 2.0))
 setupBotAngle(gui, 0)
 
 #Testing
@@ -236,7 +277,7 @@ if isTesting == True:
 	drawLine(gui, (0, 0, 50, 50))
 	drawPoint(gui, (50, 50))
 	displayMessage(gui, "Test")
-	updateBotPos(gui, (150, 200))
+	updateBotPos(gui, (600, 600))
 	updateBotAngle(gui, 90)
 	mapText(gui, (300, 300), "Test")
 
