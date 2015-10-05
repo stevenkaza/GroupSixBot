@@ -33,6 +33,30 @@ mapHeight = 1200.0
 # 8 -> Robot
 # 9 -> Unreachable Space
 
+"""
+Debug Code
+"""
+
+#Grabs data from file and returns it in a 2D array
+def readTestFile(fileName):
+	with open(fileName, "r") as file:
+		info = file.read().replace('\n', '')
+
+	data = [[]]
+	row = 0
+
+	for char in info:
+		if char == "]":
+			row += 1
+			data.append([])
+		elif char != "[" and char != "," and char != " ":
+			data[row].append(int(char))
+	return data
+
+"""
+End Debug Code
+"""
+
 #Position is (x,y), returns new position as (x,y) in canvas space
 def worldSpaceToCanvasSpace(position):
 	newPosition = ((position[0] / mapWidth) * canvasWidth, (position[1] / mapHeight) * canvasHeight)
@@ -201,7 +225,7 @@ def display(queue, running, sh, root):
 	sh.listener.close()
 	sh.server.close()
 	os._exit(0)
-	
+			
 class UITesting(Tk):	
 	def __init__(self):
 		Tk.__init__(self)
@@ -321,6 +345,6 @@ if isTesting == True:
 	updateBotPos(gui, (600, 600))
 	updateBotAngle(gui, 90)
 	mapText(gui, (300, 300), "Test")
-
+	readTestFile("sampleMap01.txt")
 
 gui.mainloop()
