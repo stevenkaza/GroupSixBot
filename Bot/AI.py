@@ -45,22 +45,23 @@ class AI:
 		"""
 		points = list()
 		for i in range(360/self.turnAngle):
-			self.movement.turn(self.turnAngle)
-			self.botAngle = self.botAngle+self.turnAngle
-			if self.turnAngle ==0:
+			if self.botAngle ==0:
 				points.insert(0,[self.sensor.getDistance(),self.botAngle])
-			elif self.turnAngle == 90:
+			elif self.botAngle == 90:
 				points.insert(1,[self.sensor.getDistance(),self.botAngle])
-			elif self.turnAngle == 180:
+			elif self.botAngle == 180:
 				points.insert(2,[self.sensor.getDistance(),self.botAngle])
-			elif self.turnAngle == 270:
+			elif self.botAngle == 270:
 				points.insert(3,[self.sensor.getDistance(),self.botAngle])
 			else:
 				points.append([self.sensor.getDistance(),self.botAngle])
-			if self.turnAngle >= 360:
-				self.turnAngle = self.turnAngle-360
-			if self.botAngle == 0:
+			self.movement.turn(self.turnAngle)
+			self.botAngle = self.botAngle+self.turnAngle
+			if self.botAngle >= 360:
+				self.botAngle = self.botAngle-360
 				break
+			#if self.botAngle == 0:
+			#	break
 			time.sleep(1)
 		return points
 
@@ -137,13 +138,14 @@ if __name__ == "__main__":
 
 	print "Starting AI"
 
+	raw_input("press the 'any' key")
 	room = Map([])
 	p = a.sense()
+	print p
 	room.updateMap(p)
 	r = room.getMap()
 	for i in r:
 		print i
-	print p
 	#a.com.updateMap(room.getMap())
 	
 '''
