@@ -121,13 +121,18 @@ class Move:
 
 if __name__ == "__main__":
 	
-	bot = Move(leftSpeed = 100, rightSpeed = 0.09)
+	bot = Move(leftSpeed = 100, rightSpeed = 0.02)
 	s = ""
+	
+	'''
 	s = raw_input("Start: ")
 	print bot.sensor.getDistance()
+	bot.forward(100)
+	time.sleep(1)
 	bot.stop()
+	print bot.sensor.getDistance()
 
-	
+	'''
 	
 	while(s !='s'):
 		s = raw_input("Distance: ")
@@ -142,6 +147,7 @@ if __name__ == "__main__":
 			print "distance away from closest: "
 			print bot.move(float(s))
 
+	
 	bot.movement.stop()
 	'''
 
