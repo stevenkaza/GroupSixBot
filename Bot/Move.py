@@ -25,6 +25,8 @@ class Move:
 		self.us = Ultrasound()
 		self.movement = Movement()
 
+		self.timeSpin = 0
+
 
 		print "Left Speed: ", self.leftSpeed, "\nRight Speed: ", self.rightSpeed
 
@@ -88,23 +90,90 @@ class Move:
 			self.movement.stop()
 
 	def turn(self,angle):
+		
 		# 90 degrees of rotation comes to approx 0.66 seconds, 2 seconds = 270* of rotation on a smooth surface
 		angle = float(angle)
+		
 		if (angle >0):
 			direction = 'right'
 		else:
 			direction = 'left'
 		angle = abs(angle)
-		spinTime = angle*0.0053763408602 # degrees per second
+
+		
+
+		if angle == 15:
+			self.timeSpin = 0.0036
+		if angle == 5:
+			self.timeSpin = 0.0032
+		if angle == 45:
+			self.timeSpin = 0.00455
+		if angle == 90:
+			self.timeSpin = 0.00495
+
+
+		spinTime = angle * self.timeSpin # degrees per second 0.0053763408602
 		self.timedSpin(spinTime,direction)
 
+	def stop(self):
+		self.left.set_normalized(-1)
+		self.right.set_normalized(-1)
+
 if __name__ == "__main__":
-	bot = Move(leftSpeed = 100, rightSpeed = 0.25)
+	
+	bot = Move(leftSpeed = 100, rightSpeed = 0.09)
 	s = ""
+	s = raw_input("Start: ")
+	print bot.sensor.getDistance()
+	bot.stop()
+
+	
+	
 	while(s !='s'):
-		s = raw_input()
+		s = raw_input("Distance: ")
+		speed = raw_input("Speed (0.0 -1.0: ")
+
+		try:
+			bot.rightSpeed = float(speed)
+		except:
+			s = 's'
+
 		if (s!='s'):
 			print "distance away from closest: "
 			print bot.move(float(s))
 
 	bot.movement.stop()
+	'''
+
+	count = 0
+	
+
+	bot.timeSpin = 0.005
+	
+
+	while s != 's':
+
+		s = raw_input("Time: ")
+		try:
+			bot.timeSpin = float(s)
+		except:
+			s = 's'
+
+		print "Time: ", bot.timeSpin
+		count = 0
+		while count < 24:
+			bot.turn(15)
+			time.sleep(1)
+			count += 1
+		s = raw_input("Time: ")
+		try:
+			bot.timeSpin = float(s)
+		except:
+			s = 's'
+
+	
+
+	bot.movement.stop()
+
+	'''
+	
