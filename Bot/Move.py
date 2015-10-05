@@ -100,8 +100,7 @@ class Move:
 			direction = 'left'
 		angle = abs(angle)
 
-		
-
+	
 		if angle == 15:
 			self.timeSpin = 0.0036
 		if angle == 5:
@@ -110,7 +109,6 @@ class Move:
 			self.timeSpin = 0.00455
 		if angle == 90:
 			self.timeSpin = 0.00495
-
 
 		spinTime = angle * self.timeSpin # degrees per second 0.0053763408602
 		self.timedSpin(spinTime,direction)
@@ -132,7 +130,7 @@ if __name__ == "__main__":
 	bot.stop()
 	print bot.sensor.getDistance()
 
-	'''
+	
 	
 	while(s !='s'):
 		s = raw_input("Distance: ")
@@ -171,15 +169,7 @@ if __name__ == "__main__":
 			bot.turn(15)
 			time.sleep(1)
 			count += 1
-		s = raw_input("Time: ")
-		try:
-			bot.timeSpin = float(s)
-		except:
-			s = 's'
 
 	
 
 	bot.movement.stop()
-
-	'''
-	
