@@ -35,7 +35,8 @@ class AI:
 			does its AI stuff, calls move to move the bot and calls com to update the laptop
 		"""
 		self.move = Move()
-		#self.com = Com(port = port, host = host)
+		self.room = Map([[0,0]])
+		self.com = Com(port = port, host = host)
 	def sense(self):
 		"""
 			This function is a temp function it just takes in input from the user
@@ -59,12 +60,63 @@ class AI:
 			self.botAngle = self.botAngle+self.turnAngle
 			if self.botAngle >= 360:
 				self.botAngle = self.botAngle-360
+				self.movement.turn(self.turnAngle)
+				self.botAngle = self.botAngle+self.turnAngle
+			
 				break
 			#if self.botAngle == 0:
 			#	break
 			time.sleep(1)
 		return points
 
+	def mapRoom90(self):
+		self.turnAngle = 90
+		while(not self.room.isMapped()):
+			points = sense()
+			self.room.updateMap()
+			self.room.fillMap90()
+			nextDir = self.room.nextRoute90()
+			if nextDir=="U":
+				if self.botAngle!=0:
+					self.movement.turn(360-self.botAngle)
+					self.botAngle=0
+				self.movement.move(MAXVIEW-20)
+				self.botPos[0]=self.bot[0]-MAXVIEW+20
+				self.room.updatePos(botPos)
+			elif nextDir=="D":
+				if self.botAngle!=180:
+					self.movement.turn(180-self.botAngle)
+					self.botAngle=180
+				self.movement.move(MAXVIEW-20)
+				self.botPos[0]=self.bot[0]+MAXVIEW-20###################
+				self.room.updatePos(botPos)
+			elif nextDir=="R":
+				if self.botAngle!=90:
+					self.movement.turn(90-self.botAngle)
+					self.botAngle=90
+				self.movement.move(MAXVIEW-20)
+				self.botPos[1]=self.bot[1]+MAXVIEW-20###################
+				self.room.updatePos(botPos)
+			elif nextDir=="L":
+				if self.botAngle!=270:
+					self.movement.turn(270-self.botAngle)
+					self.botAngle=270
+				self.movement.move(MAXVIEW-20)
+				self.botPos[1]=self.bot[1]-MAXVIEW+20###################
+				self.room.updatePos(botPos)
+			elif nextDir == None:
+				self.room.showRoom()
+				self.com.sendMessage("data")
+				self.com.updateMap(self.room.getMap())
+				self.com.sendMessage("bot")
+				self.com.sendBotLocation((self.botPos[0],self.botPos[1],self.botAngle))
+				break
+				#complete
+			self.com.sendMessage("data")
+			self.com.updateMap(self.room.getMap())
+			self.com.sendMessage("bot")
+			self.com.sendBotLocation((self.botPos[0],self.botPos[1],self.botAngle))
+			
 		#print "Location: " + str(self.move.location)
 
 		'''
@@ -139,13 +191,20 @@ if __name__ == "__main__":
 	print "Starting AI"
 
 	raw_input("press the 'any' key")
-	room = Map([])
+	
+	a.mapRoom90()
+	
+	
+	#room = Map([0,0])
+	
+	'''
 	p = a.sense()
 	print p
 	room.updateMap(p)
 	r = room.getMap()
 	for i in r:
 		print i
+	'''
 	#a.com.updateMap(room.getMap())
 	
 '''
@@ -154,3 +213,5 @@ if __name__ == "__main__":
 		if c == "exit":
 			break
 '''
+
+#move.move(dist)
