@@ -74,8 +74,8 @@ class AI:
 	def mapRoom90(self):
 		self.turnAngle = 90
 		while(not self.room.isMapped()):
-			points = sense()
-			self.room.updateMap()
+			points = self.sense()
+			self.room.updateMap(points)
 			self.room.fillMap90()
 			nextDir = self.room.nextRoute90()
 			if nextDir=="U":
@@ -112,13 +112,14 @@ class AI:
 				self.com.updateMap(self.room.getMap())
 				self.com.sendMessage("bot")
 				self.com.sendBotLocation((self.botPos[0],self.botPos[1],self.botAngle))
+				self.com.sendMessage("Mapping Complete!")
 				break
 				#complete
 			self.com.sendMessage("data")
 			self.com.updateMap(self.room.getMap())
 			self.com.sendMessage("bot")
 			self.com.sendBotLocation((self.botPos[0],self.botPos[1],self.botAngle))
-			
+
 		#print "Location: " + str(self.move.location)
 
 		'''
