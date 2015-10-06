@@ -203,8 +203,6 @@ def display(queue, running, sh, root):
 
 		message = sh.listener.recv(sh.buf)
 
-		print "Received message: " + message
-
 		if message == "exit":
 			break
 
@@ -229,7 +227,7 @@ def display(queue, running, sh, root):
 	sh.server.close()
 	os._exit(0)
 			
-class UITesting(Tk):	
+class GUI(Tk):	
 	def __init__(self, port = 13000 , queue = None):
 		Tk.__init__(self)
 		
@@ -265,6 +263,7 @@ class UITesting(Tk):
 		self.queue = queue #this is the job queue
 
 		self.textBox.after(50, self.check_queue)
+		print "HERE"
 	
 	def clearMap(self):
 		print "Clear Map"
@@ -438,6 +437,7 @@ class UITesting(Tk):
 			column = 0
 
 	def displayMessage(self, message):
+		print message
 		self.textBox.insert(INSERT, message + "\n")
 		#Change to actual done message
 		if (message == "Mapping Complete!"):
@@ -463,7 +463,9 @@ class UITesting(Tk):
 	def check_queue(self):
 		try:
 			f, arg = self.queue.get(block = False)
+			print "calling f"
 		except Queue.Empty:
+			print "Empty"
 			pass#queue is empty. Nothing to do
 		else:
 			f(*arg)
@@ -494,7 +496,7 @@ if __name__ == "__main__":
 	running = [True]
 
 
-	gui = UITesting()
+	gui = GUI()
 
 	sh = SocketHelper(port = port)
 
