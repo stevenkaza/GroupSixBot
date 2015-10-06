@@ -298,10 +298,104 @@ class UITesting(Tk):
 		
 		return False
 	
+	#Returns true if diagonal wall
+	def checkDiagonals(self, row, column):
+		if column < len(currentData[0]) - 1 and row < len(currentData) - 1:
+			if currentData[row + 1][column + 1] == 1:
+				return True
+		if column > 0 and row > 0:
+			if currentData[row - 1][column - 1] == 1:
+				return True
+		if column < len(currentData[0]) - 1 and row > 0:
+			if currentData[row - 1][column + 1] == 1:
+				return True
+		if column > 0 and row < len(currentData) - 1:
+			if currentData[row + 1][column - 1] == 1:
+				return True
+				
+		return False
+	
 	def drawWall(self, wallStart, wallEnd, length):
 		labelPos = ((wallStart[0] + wallEnd[0]) / 2.0, (wallStart[1] + wallEnd[1]) / 2.0)
 		mapText(gui, labelPos, str(length) + "cm", 'black')
 		drawLine(self, (wallStart[0], wallStart[1], wallEnd[0], wallEnd[1]))
+	
+	def drawDiagonalWall(self, row, column):
+		startPos = (row, column)
+		direction = (0, 0)
+		
+		longestLength = 1
+		length = 1
+		
+		if column < len(currentData[0]) - 1 and row < len(currentData) - 1:
+			if currentData[row + 1][column + 1] == 1 and gui.neighbourWall(row + 1, column + 1) == False:
+				direction = (1, 1)
+				while currentData[row + direction[0]][column + direction[1]] == 1 and gui.neighbourWall(row + direction[0], column + direction[1]) == False:
+					row = row + direction[0]
+					column = column + direction[1]
+					length += 1
+					if row + direction[0] > len(currentData) - 1 or row + direction[0] < 0:
+						break
+					if column + direction[1] > len(currentData[row]) - 1 or column + direction[1] < 0:
+						break
+		
+		if length > longestLength:
+			endPos = (row, column)
+			longestLength = length
+		length = 1
+		
+		if column > 0 and row > 0:
+			if currentData[row - 1][column - 1] == 1 and gui.neighbourWall(row - 1, column - 1) == False:
+				direction = (-1, -1)
+				while currentData[row + direction[0]][column + direction[1]] == 1 and gui.neighbourWall(row + direction[0], column + direction[1]) == False:
+					row = row + direction[0]
+					column = column + direction[1]
+					length += 1
+					if row + direction[0] > len(currentData) - 1 or row + direction[0] < 0:
+						break
+					if column + direction[1] > len(currentData[row]) - 1 or column + direction[1] < 0:
+						break
+		
+		if length > longestLength:
+			endPos = (row, column)
+			longestLength = length
+		length = 1
+		
+		
+		if column < len(currentData[0]) - 1 and row > 0 and gui.neighbourWall(row - 1, column + 1) == False:
+			if currentData[row - 1][column + 1] == 1:
+				direction = (-1, 1)
+				while currentData[row + direction[0]][column + direction[1]] == 1 and gui.neighbourWall(row + direction[0], column + direction[1]) == False:
+					row = row + direction[0]
+					column = column + direction[1]
+					length += 1
+					if row + direction[0] > len(currentData) - 1 or row + direction[0] < 0:
+						break
+					if column + direction[1] > len(currentData[row]) - 1 or column + direction[1] < 0:
+						break
+		
+		if length > longestLength:
+			endPos = (row, column)
+			longestLength = length
+		length = 1
+		
+		if column > 0 and row < len(currentData) - 1 and gui.neighbourWall(row + 1, column - 1) == False:
+			if currentData[row + 1][column - 1] == 1:
+				direction = (1, -1)
+				while currentData[row + direction[0]][column + direction[1]] == 1 and gui.neighbourWall(row + direction[0], column + direction[1]) == False:
+					row = row + direction[0]
+					column = column + direction[1]
+					length += 1
+					if row + direction[0] > len(currentData) - 1 or row + direction[0] < 0:
+						break
+					if column + direction[1] > len(currentData[row]) - 1 or column + direction[1] < 0:
+						break
+		
+		if length > longestLength:
+			endPos = (row, column)
+			longestLength = length
+			
+		gui.drawWall(startPos, endPos, longestLength)
 		
 	def drawHorizontalWalls(self):
 		row = 0
@@ -329,8 +423,11 @@ class UITesting(Tk):
 						if length > 1:
 							wallEnd = (row, column)
 							gui.drawWall(wallStart, wallEnd, length)
-						elif gui.neighbourWall(row - 1, column) == False: #If Not a solid wall, place a mark instead
-							drawPoint(self, wallStart, 'black')
+						elif gui.neighbourWall(row - 1, column) == False: #If Not a solid wall, check for diagonals
+							if gui.checkDiagonals(row - 1, column) == False: #If not a diagonal wall, mark point
+								drawPoint(self, wallStart, 'black')
+							else:
+								gui.drawDiagonalWall(row - 1, column)
 					length = 0
 				row += 1				
 			#If Wall goes to final column
@@ -340,8 +437,11 @@ class UITesting(Tk):
 				if length > 1:
 					wallEnd = (row, column)
 					gui.drawWall(wallStart, wallEnd, length)
-				elif gui.neighbourWall(row, column) == False: #If Not a solid wall, place a mark instead
-					drawPoint(self, wallStart, 'black')
+				elif gui.neighbourWall(row, column) == False: #If Not a solid wall, check for diagonals
+					if gui.checkDiagonals(row, column) == False: #If not a diagonal wall, mark point
+						drawPoint(self, wallStart, 'black')
+					else:
+						gui.drawDiagonalWall(row, column)
 					
 			length = 0
 			row = 0
@@ -369,8 +469,11 @@ class UITesting(Tk):
 						if length > 1:
 							wallEnd = (row, column)
 							gui.drawWall(wallStart, wallEnd, length)
-						elif gui.neighbourWall(row, column - 1) == False: #If Not a solid wall, place a mark instead
-							drawPoint(self, wallStart, 'black')
+						elif gui.neighbourWall(row, column - 1) == False: #If Not a solid wall, check for diagonals
+							if gui.checkDiagonals(row, column - 1) == False: #If not a diagonal wall, mark point
+								drawPoint(self, wallStart, 'black')
+							else:
+								gui.drawDiagonalWall(row, column - 1)
 						
 					length = 0
 				column += 1
@@ -382,8 +485,11 @@ class UITesting(Tk):
 				if length > 1:
 					wallEnd = (row, column)
 					gui.drawWall(wallStart, wallEnd, length)
-				elif gui.neighbourWall(row, column) == False: #If Not a solid wall, place a mark instead
-					drawPoint(self, wallStart, 'black')
+				elif gui.neighbourWall(row, column) == False: #If Not a solid wall, check for diagonals
+					if gui.checkDiagonals(row, column) == False: #If not a diagonal wall, mark point
+						drawPoint(self, wallStart, 'black')
+					else:
+						gui.drawDiagonalWall(row, column)
 			length = 0
 			row += 1
 			column = 0
@@ -520,10 +626,10 @@ if isTesting == True:
 	updateBotAngle(gui, 90)
 	mapText(gui, (300, 300), "Test", 'blue')
 	#map = readTestFile("sampleMap01.txt")
-	map = readTestFile("sampleMap02.txt")
+	#map = readTestFile("sampleMap02.txt")
 	#map = readTestFile("sampleMap03.txt")
 	#map = readTestFile("sampleMap04.txt")
-	#map = readTestFile("sampleMap05.txt")
+	map = readTestFile("sampleMap05.txt")
 	gui.drawOnMap(map)
 	
 	gui.displayMessage("Mapping Complete!")
