@@ -6,6 +6,8 @@ import sys
 import json
 from Map import *
 
+MAXVIEW = 90
+
 class AI:
 	room = Map([])
 	movement = Move()
@@ -58,6 +60,7 @@ class AI:
 				points.append([self.sensor.getDistance(),self.botAngle])
 			self.movement.turn(self.turnAngle)
 			self.botAngle = self.botAngle+self.turnAngle
+			time.sleep(1)
 			if self.botAngle >= 360:
 				self.botAngle = self.botAngle-360
 				self.movement.turn(self.turnAngle)
@@ -66,7 +69,6 @@ class AI:
 				break
 			#if self.botAngle == 0:
 			#	break
-			time.sleep(1)
 		return points
 
 	def mapRoom90(self):
