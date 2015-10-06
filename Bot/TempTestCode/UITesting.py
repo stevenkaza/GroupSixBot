@@ -21,17 +21,15 @@ import Queue
 windowWidth = 675
 windowHeight = 500
 
-canvasWidth = 450
-canvasHeight = 450
+canvasWidth = 450.0
+canvasHeight = 450.0
 
-mapWidth = 1200.0
-mapHeight = 1200.0
+mapWidth = 500.0
+mapHeight = 500.0
 
-#Map Data Legend
-# 0 -> Empty
-# 1 -> Wall
-# 8 -> Robot
-# 9 -> Unreachable Space
+mapOffset = 25
+
+currentData = [[]]
 
 """
 Debug Code
@@ -59,7 +57,7 @@ End Debug Code
 
 #Position is (x,y), returns new position as (x,y) in canvas space
 def worldSpaceToCanvasSpace(position):
-	newPosition = ((position[0] / mapWidth) * canvasWidth, (position[1] / mapHeight) * canvasHeight)
+	newPosition = ((position[0] / mapWidth) * canvasWidth + mapOffset, (position[1] / mapHeight) * canvasHeight + mapOffset)
 	return newPosition
 
 def exitRoomMapper():
@@ -107,25 +105,29 @@ def mainMenu(r):
 	return m
 	
 
-def mapText(self, data, info):
+def mapText(self, data, info, colour):
 	data = worldSpaceToCanvasSpace(data)
 	
 	x0 = int(data[0])
 	y0 = int(data[1])
-	self.canvas.create_text(x0, y0, text = info, fill = 'black')
+	self.labels.append(self.canvas.create_text(x0, y0, text = info, fill = colour))
 	
-def drawPoint(self, data):
+def drawPoint(self, data, colour):
 	data = worldSpaceToCanvasSpace(data)
 	
 	x0 = int(data[0])
 	y0 = int(data[1])
-	self.canvas.create_rectangle(x0, y0, x0 + 5, y0 + 5, 
-		outline='black', fill='blue')
+	self.points.append(self.canvas.create_rectangle(x0 - 2.5, y0 - 2.5, x0 + 2.5, y0 + 2.5, 
+		outline='black', fill=colour))
 
 #Data is (x0, y0, x1, y1)
 def drawLine(self, data):
+
 	startPoint = (data[0], data[1])
 	endPoint = (data[2], data[3])
+	
+	#print "Start Point" + str(startPoint)
+	#print "End Point" + str(endPoint)
 	
 	startPoint = worldSpaceToCanvasSpace(startPoint)
 	endPoint = worldSpaceToCanvasSpace(endPoint)
@@ -134,7 +136,7 @@ def drawLine(self, data):
 	y0 = int(startPoint[1])
 	x1 = int(endPoint[0])
 	y1 = int(endPoint[1])
-	self.canvas.create_line(x0,y0,x1,y1)
+	self.walls.append(self.canvas.create_line(x0,y0,x1,y1))
 
 def setupBotIcon(self, data):
 	data = worldSpaceToCanvasSpace(data)
@@ -189,7 +191,10 @@ def updateBotAngle(self, data):
 	#Place New Line
 	self.botAngleLine = self.canvas.create_line(x0,y0,x1,y1)
 	
-	
+def setupMapping(self):
+	self.points = []
+	self.walls = []
+	self.labels = []
 	
 """
 	This function checks the socket for messages for the GUI
@@ -263,15 +268,182 @@ class UITesting(Tk):
 
 		#self.textBox.after(50, self.check_queue)
 	
+	def clearMap(self):
+		print "Clear Map"
+		for point in self.points:
+			self.canvas.delete(point)
+		self.points = []
+		
+		for wall in self.walls:
+			self.canvas.delete(wall)
+		self.walls = []
+		
+		for label in self.labels:
+			self.canvas.delete(label)
+		self.labels = []
+	
+	#Checks if a point is a part of a wall, or is a lose point
+	# Returns True if has neighbour points, false if isolated
+	def neighbourWall(self, row, column):
+		if column < len(currentData[0]) - 1:
+			if currentData[row][column + 1] == 1:
+				return True
+		if column > 0:
+			if currentData[row][column - 1] == 1:
+				return True
+		if row < len(currentData) - 1:
+			if currentData[row + 1][column] == 1:
+				return True
+		if row > 0:
+			if currentData[row - 1][column] == 1:
+				return True
+		
+		return False
+	
+	def drawWall(self, wallStart, wallEnd, length):
+		labelPos = ((wallStart[0] + wallEnd[0]) / 2.0, (wallStart[1] + wallEnd[1]) / 2.0)
+		mapText(gui, labelPos, str(length) + "cm", 'black')
+		drawLine(self, (wallStart[0], wallStart[1], wallEnd[0], wallEnd[1]))
+		
+	def drawHorizontalWalls(self):
+		row = 0
+		column = 0
+		wall = False
+		wallStart = (0, 0)
+		wallEnd = (0, 0)
+		length = 0
+		
+		#Horizontal Walls
+		i = 0
+		j = 0
+		
+		for j in range(0, len(currentData[0])):
+			for i in range(0, len(currentData) - 1):
+				entry = currentData[i][j]
+				if entry == 1:
+					length += 1
+					if wall == False:
+						wall = True
+						wallStart = (row, column)
+				else:
+					if wall == True:
+						wall = False
+						if length > 1:
+							wallEnd = (row, column)
+							gui.drawWall(wallStart, wallEnd, length)
+						elif gui.neighbourWall(row - 1, column) == False: #If Not a solid wall, place a mark instead
+							drawPoint(self, wallStart, 'black')
+					length = 0
+				row += 1				
+			#If Wall goes to final column
+			if wall == True:
+				row -= 1
+				wall = False
+				if length > 1:
+					wallEnd = (row, column)
+					gui.drawWall(wallStart, wallEnd, length)
+				elif gui.neighbourWall(row, column) == False: #If Not a solid wall, place a mark instead
+					drawPoint(self, wallStart, 'black')
+					
+			length = 0
+			row = 0
+			column += 1
+		
+	def drawVerticalWalls(self):
+		row = 0
+		column = 0
+		wall = False
+		wallStart = (0, 0)
+		wallEnd = (0, 0)
+		length = 0
+		
+		#Vertical Walls
+		for dataRow in currentData:
+			for entry in dataRow:	
+				if entry == 1:
+					length += 1
+					if wall == False:
+						wall = True
+						wallStart = (row, column)
+				else:
+					if wall == True:
+						wall = False
+						if length > 1:
+							wallEnd = (row, column)
+							gui.drawWall(wallStart, wallEnd, length)
+						elif gui.neighbourWall(row, column - 1) == False: #If Not a solid wall, place a mark instead
+							drawPoint(self, wallStart, 'black')
+						
+					length = 0
+				column += 1
+				
+			#If Wall goes to final row
+			if wall == True:
+				column -= 1
+				wall = False
+				if length > 1:
+					wallEnd = (row, column)
+					gui.drawWall(wallStart, wallEnd, length)
+				elif gui.neighbourWall(row, column) == False: #If Not a solid wall, place a mark instead
+					drawPoint(self, wallStart, 'black')
+			length = 0
+			row += 1
+			column = 0
+		
+	
+	def processMap(self):
+		global currentData
+		
+		gui.clearMap()
+		print "Process Map"
+		
+		gui.drawHorizontalWalls()
+		gui.drawVerticalWalls()
+		
+		
+	#Map Data Legend
+	# 0 -> Empty
+	# 1 -> Wall
+	# 8 -> Robot
+	# 9 -> Unreachable Space	
+	
+	def mapPoints(self, row, column, entry):		
+		if (entry == 1):
+			drawPoint(self, (row, column), 'blue')
+		elif (entry == 8):
+			drawPoint(self, (row, column), 'green')
+		elif (entry == 9):
+			drawPoint(self, (row, column), 'black')
+	
 	"""
 		Functions called by AI
 	"""
 	def drawOnMap(self, data):
-		#draw the map.
-		print data	
+		global currentData
+		global mapWidth
+		global mapHeight
+		mapWidth = float(len(data))
+		mapHeight = float(len(data[0]))
+		
+		#Copy data incase final map
+		currentData = data[:]
+		gui.clearMap()
+		
+		row = 0
+		column = 0
+		for dataRow in data:
+			for entry in dataRow:
+				column += 1
+				self.mapPoints(row, column, entry)
+				#print "(" + str(row) + "," + str(column) + ") : " + str(entry)
+			row += 1
+			column = 0
 
 	def displayMessage(self, message):
-		self.textBox.insert(INSERT, message)
+		self.textBox.insert(INSERT, message + "\n")
+		#Change to actual done message
+		if (message == "Mapping Complete!"):
+			gui.processMap()
 		
 	def botLocation(self, location):
 		#location is a 3 tuple (ints). (y,x,a)
@@ -292,7 +464,7 @@ class UITesting(Tk):
 	"""
 	def check_queue(self):
 		try:
-			f,arg = self.queue.get(block = False)
+			f, arg = self.queue.get(block = False)
 		except Queue.Empty:
 			pass#queue is empty. Nothing to do
 		else:
@@ -332,6 +504,8 @@ gui = UITesting()
 	thread.setDaemon(True)
 	thread.start()
 """
+
+setupMapping(gui)
 setupBotIcon(gui, (mapWidth / 2.0, mapHeight / 2.0))
 setupBotAngle(gui, 0)
 
@@ -340,11 +514,18 @@ isTesting = True
 
 if isTesting == True:
 	drawLine(gui, (0, 0, 50, 50))
-	drawPoint(gui, (50, 50))
+	drawPoint(gui, (50, 50), 'blue')
 	gui.displayMessage("Test")
-	updateBotPos(gui, (600, 600))
+	updateBotPos(gui, (250, 250))
 	updateBotAngle(gui, 90)
-	mapText(gui, (300, 300), "Test")
-	readTestFile("sampleMap01.txt")
+	mapText(gui, (300, 300), "Test", 'blue')
+	#map = readTestFile("sampleMap01.txt")
+	#map = readTestFile("sampleMap02.txt")
+	map = readTestFile("sampleMap03.txt")
+	#map = readTestFile("sampleMap04.txt")
+	#map = readTestFile("sampleMap05.txt")
+	gui.drawOnMap(map)
+	
+	gui.displayMessage("Mapping Complete!")
 
 gui.mainloop()
