@@ -17,7 +17,7 @@ import sys
 import Queue
 
 windowWidth = 675
-windowHeight = 500
+windowHeight = 550
 
 canvasWidth = 450.0
 canvasHeight = 450.0
@@ -203,8 +203,6 @@ def display(queue, running, sh, root):
 
 		message = sh.listener.recv(sh.buf)
 
-		print "Received message: " + message
-
 		if message == "exit":
 			break
 
@@ -215,8 +213,31 @@ def display(queue, running, sh, root):
 			queue.put((root.displayMessage,[mes]))
 
 		elif message == "data":
-			mesStr = sh.listener.recv(sh.buf)
-			m = json.loads(mesStr)
+
+			mesStr1 = sh.listener.recv(sh.buf)
+	
+			s1 = json.loads(mesStr1)
+
+			mesStr2 = sh.listener.recv(sh.buf)
+		
+			s2 = json.loads(mesStr2)
+
+			mesStr1 = sh.listener.recv(sh.buf)
+		
+			e1 = json.loads(mesStr1)
+
+			mesStr2 = sh.listener.recv(sh.buf)
+			e2 = json.loads(mesStr2)
+
+			m = []
+
+			for i in range(len(s1)):
+				line = s1[i]
+				line.extend(s2[i])
+				line.extend(e1[i])
+				line.extend(e2[i])
+				m.append(line)
+
 			queue.put((root.drawOnMap,[m]))
 
 		elif message == "bot":
@@ -246,10 +267,15 @@ class UITesting(Tk):
 		#Change Background Color
 		self.configure(background = "lavender")
 		
+		rightSide = Frame(self)
 		textFrame = Frame(self)
-		canvasFrame = Frame(self)
-		canvasFrame.pack(side = RIGHT)
+		canvasFrame = Frame(rightSide)
+		compareFrame = Frame(rightSide)
+		
+		rightSide.pack(side = RIGHT)
+		canvasFrame.pack(side = TOP)
 		textFrame.pack(side = RIGHT)
+		compareFrame.pack(side = BOTTOM)
 		
 		#Create the Textbox
 		self.textBox = Text(textFrame, width = 20, height = canvasHeight + 40, bg = 'grey')
@@ -259,12 +285,19 @@ class UITesting(Tk):
 		self.canvas = Canvas(canvasFrame, width = canvasHeight + 40, height = canvasHeight + 40, bg = 'white')
 		self.canvas.pack()
 		
+		#Create Compare Button
+		self.compareButton = Button(compareFrame, text = "Compare Room", command = lambda: 	gui.displayMessage(gui.compareRoom()))
+		self.compareButton.pack()
+		
 		m = mainMenu(self)
 		self.configure(menu = m)
 		
 		#self.queue = queue #this is the job queue
 
 		#self.textBox.after(50, self.check_queue)
+	
+	def compareRoom(self):
+		return "Compare Rooms Test"
 	
 	def clearMap(self):
 		print "Clear Map"
@@ -587,20 +620,20 @@ if __name__ == "__main__":
 			print "using default port number 13000"
 			print "To use a different port number include the number at the end of the command"
 			print "ex: python GUI.py 8080"
-		else:
-			try:
-				port = int(sys.argv[1])
-			except ValueError:
-				print "Please enter an integer for the port number"
-				print "using default port number 13000"
+	else:
+		try:
+			port = int(sys.argv[1])
+		except ValueError:
+			print "Please enter an integer for the port number"
+			print "using default port number 13000"
 
-		print "Using port:" + str(port)
+	print "Using port:" + str(port)
 
-		q = Queue.Queue()
-		running = [True]
+	q = Queue.Queue()
+	running = [True]
 """
 
-gui = UITesting()
+gui = UITesting() #Change to GUI(port = 13000,queue = q)
 """
 	sh = SocketHelper(port = port)
 
@@ -625,11 +658,11 @@ if isTesting == True:
 	updateBotPos(gui, (250, 250))
 	updateBotAngle(gui, 90)
 	mapText(gui, (300, 300), "Test", 'blue')
-	#map = readTestFile("sampleMap01.txt")
+	map = readTestFile("sampleMap01.txt")
 	#map = readTestFile("sampleMap02.txt")
 	#map = readTestFile("sampleMap03.txt")
 	#map = readTestFile("sampleMap04.txt")
-	map = readTestFile("sampleMap05.txt")
+	#map = readTestFile("sampleMap05.txt")
 	gui.drawOnMap(map)
 	
 	gui.displayMessage("Mapping Complete!")
