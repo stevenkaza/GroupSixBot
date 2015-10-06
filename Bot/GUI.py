@@ -227,7 +227,8 @@ def display(queue, running, sh, root):
 	sh.server.close()
 	os._exit(0)
 			
-class GUI(Tk):	
+class GUI(Tk):
+
 	def __init__(self, port = 13000 , queue = None):
 		Tk.__init__(self)
 		
@@ -263,7 +264,6 @@ class GUI(Tk):
 		self.queue = queue #this is the job queue
 
 		self.textBox.after(50, self.check_queue)
-		print "HERE"
 	
 	def clearMap(self):
 		print "Clear Map"
@@ -463,9 +463,7 @@ class GUI(Tk):
 	def check_queue(self):
 		try:
 			f, arg = self.queue.get(block = False)
-			print "calling f"
 		except Queue.Empty:
-			print "Empty"
 			pass#queue is empty. Nothing to do
 		else:
 			f(*arg)
@@ -496,7 +494,7 @@ if __name__ == "__main__":
 	running = [True]
 
 
-	gui = GUI()
+	gui = GUI(port = 13000,queue = q)
 
 	sh = SocketHelper(port = port)
 
