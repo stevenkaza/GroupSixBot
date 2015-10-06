@@ -1,5 +1,3 @@
-#Completely work in progress, will be merged with UI port code after and moved into appropriate file
-
 import math #Used for drawing the facing direction line
 
 import tkFileDialog
@@ -232,7 +230,7 @@ def display(queue, running, sh, root):
 	os._exit(0)
 			
 class UITesting(Tk):	
-	def __init__(self):
+	def __init__(self, port = 13000 , queue = None):
 		Tk.__init__(self)
 		
 		#Set window title
@@ -475,6 +473,8 @@ class UITesting(Tk):
 #Main Starts here
 
 """
+if __name__ == "__main__":
+
 	port = 13000
 
 	if len(sys.argv) != 2:
@@ -520,8 +520,8 @@ if isTesting == True:
 	updateBotAngle(gui, 90)
 	mapText(gui, (300, 300), "Test", 'blue')
 	#map = readTestFile("sampleMap01.txt")
-	#map = readTestFile("sampleMap02.txt")
-	map = readTestFile("sampleMap03.txt")
+	map = readTestFile("sampleMap02.txt")
+	#map = readTestFile("sampleMap03.txt")
 	#map = readTestFile("sampleMap04.txt")
 	#map = readTestFile("sampleMap05.txt")
 	gui.drawOnMap(map)
