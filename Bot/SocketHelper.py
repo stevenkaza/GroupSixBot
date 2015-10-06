@@ -2,10 +2,10 @@ import os
 import socket               # Import socket module
 from Map import *
 import json
-
+import sys
 class SocketHelper:
 	
-	def __init__(self,host = "",port = 13000,buf = 1024,handler = None):
+	def __init__(self,host = "",port = 13000,buf = 2070000000,handler = None):
 		
 		self.handler = handler #handles delegation from communication to GUI
 

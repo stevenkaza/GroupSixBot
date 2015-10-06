@@ -213,8 +213,31 @@ def display(queue, running, sh, root):
 			queue.put((root.displayMessage,[mes]))
 
 		elif message == "data":
-			mesStr = sh.listener.recv(sh.buf)
-			m = json.loads(mesStr)
+
+			mesStr1 = sh.listener.recv(sh.buf)
+	
+			s1 = json.loads(mesStr1)
+
+			mesStr2 = sh.listener.recv(sh.buf)
+		
+			s2 = json.loads(mesStr2)
+
+			mesStr1 = sh.listener.recv(sh.buf)
+		
+			e1 = json.loads(mesStr1)
+
+			mesStr2 = sh.listener.recv(sh.buf)
+			e2 = json.loads(mesStr2)
+
+			m = []
+
+			for i in range(len(s1)):
+				line = s1[i]
+				line.extend(s2[i])
+				line.extend(e1[i])
+				line.extend(e2[i])
+				m.append(line)
+
 			queue.put((root.drawOnMap,[m]))
 
 		elif message == "bot":

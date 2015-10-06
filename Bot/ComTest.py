@@ -39,27 +39,22 @@ class ComTest:
 			self.com.sendBotLocation((4,4,90))
 		elif command == "data":			
 			while 1:
-				data = raw_input("Enter x0,y0,x1,y1: ")
-				inp = data.split(",")
+				m = [[1]*200]*200
+				'''
+				m.append([1,1,1,1,1,1,1,1,1])
+				m.append([1,0,0,0,0,0,0,0,1])
+				m.append([1,0,0,0,0,0,0,0,1])
+				m.append([1,0,0,0,0,0,0,0,1])
+				m.append([1,1,1,1,1,1,1,1,1])
+				'''
+				#test data
 
-				if len(inp) != 4:
-					print "Invalid input"
-				else:
-					m = []
-					#test data
-					m.append([1,1,1,1,1,1])
-					m.append([1,0,0,1,0,1])
-					m.append([1,0,0,1,0,1])
-					m.append([1,0,0,1,0,1])
-					m.append([1,0,0,1,0,1])
-					m.append([1,1,1,1,1,1])
-
-					self.com.sendMessage("data")
-					self.com.updateMap(m)
-					break
+				self.com.sendMessage("data")
+				self.com.updateMap(m)
+				break
 		else:
 			self.com.sendMessage("Mapping Complete!")
-			
+
 		return command
 
 if __name__ == "__main__":
