@@ -71,7 +71,7 @@ class Move:
 			return distanceMoved
 		elif (result =="GOOD"):
 			self.forward(100)
-			time.sleep(distance/15.0)
+			time.sleep(distance/14.5)
 		
 		#account for the 5 degrees a second/ every 12 cm of curvature to the left
 		distanceMoved = cmAwayFromWall - self.sensor.getDistance()
@@ -98,7 +98,6 @@ class Move:
 			direction = 'left'
 		angle = abs(angle)
 
-	
 		if angle == 15:
 			self.timeSpin = 0.0036
 		if angle == 5:
@@ -106,7 +105,9 @@ class Move:
 		if angle == 45:
 			self.timeSpin = 0.00455
 		if angle == 90:
-			self.timeSpin = 0.00495
+			self.timeSpin = 0.0045
+		if angle == 180:
+			self.timeSpin = 0.0047
 
 		spinTime = angle * self.timeSpin # degrees per second 0.0053763408602
 		self.timedSpin(spinTime,direction)
@@ -119,7 +120,7 @@ if __name__ == "__main__":
 	
 	bot = Move(leftSpeed = 1, rightSpeed = 0.25)
 	s = ""
-	
+	'''
 	
 	s = raw_input("Start: ")
 	
@@ -135,11 +136,11 @@ if __name__ == "__main__":
 		print "distance move: ",start - end
 		s = raw_input("Again (s): ")
 
-	'''
 	
+	'''
 	while(s !='s'):
 		s = raw_input("Distance: ")
-		speed = raw_input("Speed (0.0 -1.0: ")
+		speed = raw_input("Speed (0.0 -1.0 (0.25??): ")
 
 		try:
 			bot.rightSpeed = float(speed)
@@ -151,13 +152,14 @@ if __name__ == "__main__":
 			print "distance away from closest: "
 			print bot.move(float(s))
 
-	'''
+	
 	bot.movement.stop()
 	'''
 
 	count = 0
 	
-
+	print "To turn of default angles comment out if statements in turn"
+	raw_input("read above")
 	bot.timeSpin = 0.005	
 
 	while s != 's':
@@ -173,8 +175,8 @@ if __name__ == "__main__":
 
 		print "Time: ", bot.timeSpin
 		count = 0
-		while count < 24:
-			bot.turn(15)
+		while count < 2:
+			bot.turn(180)
 			time.sleep(1)
 			count += 1
 
