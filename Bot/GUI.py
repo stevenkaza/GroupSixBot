@@ -15,6 +15,7 @@ from socket import *
 import sys
 from Map import *
 import Queue
+from ProcessRoom import *
 
 windowWidth = 675
 windowHeight = 550
@@ -193,6 +194,25 @@ def setupMapping(self):
 	self.points = []
 	self.walls = []
 	self.labels = []
+
+def makeBox(loc = ()):
+
+	length = int(loc[0] + loc[1]) + 5
+	width = int(loc[2] + loc[3]) + 5
+
+	room = []
+
+	for i in range(length):
+		line = []
+		for j in range(width):
+			if (i == 0 or j == 0) or (i == length - 1) or (j == width - 1):
+				line.append(1)
+			else:
+				line.append(0)
+
+		room.append(line)
+
+	return room
 	
 """
 	This function checks the socket for messages for the GUI
@@ -214,43 +234,24 @@ def display(queue, running, sh, root):
 
 		elif message == "data":
 
-			mesStr1 = sh.listener.recv(sh.buf)
-	
-			s1 = json.loads(mesStr1)
-
-			mesStr2 = sh.listener.recv(sh.buf)
-		
-			s2 = json.loads(mesStr2)
-
-			mesStr1 = sh.listener.recv(sh.buf)
-		
-			e1 = json.loads(mesStr1)
-
-			mesStr2 = sh.listener.recv(sh.buf)
-			e2 = json.loads(mesStr2)
-
-			m = []
-
-			for i in range(len(s1)):
-				line = s1[i]
-				line.extend(s2[i])
-				line.extend(e1[i])
-				line.extend(e2[i])
-				m.append(line)
+			mesStr = sh.listener.recv(sh.buf)
+			print mesStr
+			s = json.loads(mesStr)
+			m = makeBox(s)
 
 			queue.put((root.drawOnMap,[m]))
-
+	
 		elif message == "bot":
 			mesStr = sh.listener.recv(sh.buf)
 			m = json.loads(mesStr)
-			queue.put((root.botLocation,[m]))
-		
+			queue.put((root.botLocation,[m]))		
 
 	sh.listener.close()
 	sh.server.close()
 	os._exit(0)
 			
 class GUI(Tk):	
+
 	def __init__(self, port = 13000 , queue = None):
 		Tk.__init__(self)
 		
@@ -295,9 +296,29 @@ class GUI(Tk):
 		self.queue = queue #this is the job queue
 
 		self.textBox.after(50, self.check_queue)
+
+		self.currentRoom = [] #current 2D array(used for comparing rooms)
 	
 	def compareRoom(self):
-		return "Compare Rooms Test"
+
+		mypath = "./rooms"
+		onlyfiles = [ f for f in listdir(mypath) if isfile(join(mypath,f)) ]
+
+		pr = ProcessRoom()
+
+		room = pr.openFile("./rooms/rooms2")
+
+		roomList = ""
+
+		for i in onlyfiles:
+			r = pr.openFile(mypath+'/'+i)
+			if pr.sameRoom(room,r):
+				roomList += i + "\n"
+
+		if roomList == "":
+			return "No similar rooms found"
+		else:
+			return "Similar Rooms: \n" + roomList
 	
 	def clearMap(self):
 		print "Clear Map"
@@ -526,8 +547,7 @@ class GUI(Tk):
 			length = 0
 			row += 1
 			column = 0
-		
-	
+			
 	def processMap(self):
 		global currentData
 		
@@ -536,8 +556,7 @@ class GUI(Tk):
 		
 		gui.drawHorizontalWalls()
 		gui.drawVerticalWalls()
-		
-		
+			
 	#Map Data Legend
 	# 0 -> Empty
 	# 1 -> Wall
@@ -559,6 +578,9 @@ class GUI(Tk):
 		global currentData
 		global mapWidth
 		global mapHeight
+
+		self.currentRoom = data
+
 		mapWidth = float(len(data))
 		mapHeight = float(len(data[0]))
 		

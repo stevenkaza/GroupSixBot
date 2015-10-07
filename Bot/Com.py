@@ -55,23 +55,28 @@ class Com:
 	def updateMap(self,data):
 
 		#data needs to be turn into a string (for now). It will be a 2D array
-
+		'''
 		s1,s2,e1,e2 = self.split(data)
 
 		dataStr = json.dumps(s1)
 		self.client.send(dataStr)
 
-		time.sleep(0.2)
+		time.sleep(1)
 		dataStr = json.dumps(s2)
 		self.client.send(dataStr)
-		time.sleep(0.2)
+
+		time.sleep(1)
 
 		dataStr = json.dumps(e1)
 		self.client.send(dataStr)
 		
-		time.sleep(0.2)
+		time.sleep(1)
 
 		dataStr = json.dumps(e2)
+
+		'''
+		dataStr = json.dumps(data)
+
 		self.client.send(dataStr)
 
 
