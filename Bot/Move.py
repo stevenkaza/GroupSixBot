@@ -70,7 +70,7 @@ class Move:
 			return distanceMoved
 		elif (result =="GOOD"):
 			self.forward(100)
-			time.sleep(distance/11.3)
+			time.sleep(distance/15.3)
 		#	return status
 		#account for the 5 degrees a second/ every 12 cm of curvature to the left
 		distanceMoved = cmAwayFromWall - self.sensor.getDistance()
@@ -100,15 +100,14 @@ class Move:
 			direction = 'left'
 		angle = abs(angle)
 
-	
 		if angle == 15:
 			self.timeSpin = 0.0036
 		if angle == 5:
 			self.timeSpin = 0.0032
 		if angle == 45:
 			self.timeSpin = 0.00455
-		if angle == 90:
-			self.timeSpin = 0.00495
+		if angle == 90 or angle == -90:
+			self.timeSpin = 0.0048
 
 		spinTime = angle * self.timeSpin # degrees per second 0.0053763408602
 		self.timedSpin(spinTime,direction)
@@ -130,7 +129,7 @@ if __name__ == "__main__":
 	bot.stop()
 	print bot.sensor.getDistance()
 
-	
+	'''
 	
 	while(s !='s'):
 		s = raw_input("Distance: ")
@@ -173,3 +172,4 @@ if __name__ == "__main__":
 	
 
 	bot.movement.stop()
+	'''
