@@ -62,12 +62,15 @@ class Move:
 		status = True
 		result = self.checkBoundary(distance)
 		cmAwayFromWall = self.sensor.getDistance()
+
 		print cmAwayFromWall
+
 		if (result == "STOP"):
 
 			distanceMoved = 0
 			self.movement.stop()
 			return distanceMoved
+			
 		elif (result =="GOOD"):
 			self.forward(100)
 			time.sleep(distance/15.3)
