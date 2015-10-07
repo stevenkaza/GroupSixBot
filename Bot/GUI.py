@@ -322,7 +322,7 @@ class GUI(Tk):
 
 		pr = ProcessRoom()
 
-		room = pr.openFile("./rooms/rooms2")
+		room = self.currentRoom
 
 		roomList = ""
 
