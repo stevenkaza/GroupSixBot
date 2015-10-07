@@ -63,10 +63,10 @@ class AI:
 			time.sleep(1)
 			if self.botAngle >= 360:
 				self.botAngle = self.botAngle-360
-				self.movement.turn(self.turnAngle)
-				self.botAngle = self.botAngle+self.turnAngle
+				#self.movement.turn(self.turnAngle)
+				#self.botAngle = self.botAngle+self.turnAngle
 			
-				break
+				#break
 			#if self.botAngle == 0:
 			#	break
 		return points
@@ -75,7 +75,7 @@ class AI:
 		self.turnAngle = 90
 		while(not self.room.isMapped()):
 			points = self.sense()
-			self.room.updateMap(points)
+			self.botPos = self.room.updateMap(points)
 			self.room.fillMap90()
 			nextDir = self.room.nextRoute90()
 			if nextDir=="U":
@@ -83,43 +83,77 @@ class AI:
 					self.movement.turn(360-self.botAngle)
 					self.botAngle=0
 				self.movement.move(MAXVIEW-20)
-				self.botPos[0]=self.bot[0]-MAXVIEW+20
-				self.room.updatePos(botPos)
+				self.botPos[0]=self.botPos[0]-MAXVIEW+20
+				self.room.updatePos(self.botPos)
 			elif nextDir=="D":
 				if self.botAngle!=180:
 					self.movement.turn(180-self.botAngle)
 					self.botAngle=180
 				self.movement.move(MAXVIEW-20)
-				self.botPos[0]=self.bot[0]+MAXVIEW-20###################
-				self.room.updatePos(botPos)
+				self.botPos[0]=self.botPos[0]+MAXVIEW-20###################
+				self.room.updatePos(self.botPos)
 			elif nextDir=="R":
 				if self.botAngle!=90:
 					self.movement.turn(90-self.botAngle)
 					self.botAngle=90
 				self.movement.move(MAXVIEW-20)
-				self.botPos[1]=self.bot[1]+MAXVIEW-20###################
-				self.room.updatePos(botPos)
+				self.botPos[1]=self.botPos[1]+MAXVIEW-20###################
+				self.room.updatePos(self.botPos)
 			elif nextDir=="L":
 				if self.botAngle!=270:
 					self.movement.turn(270-self.botAngle)
 					self.botAngle=270
 				self.movement.move(MAXVIEW-20)
-				self.botPos[1]=self.bot[1]-MAXVIEW+20###################
-				self.room.updatePos(botPos)
+				self.botPos[1]=self.botPos[1]-MAXVIEW+20###################
+				self.room.updatePos(self.botPos)
 			elif nextDir == None:
 				self.room.showRoom()
 				self.com.sendMessage("data")
-				self.com.updateMap(self.room.getMap())
+				time.sleep(1)
+				u=0
+				d=0
+				l=0
+				r=0
+				m = self.room.getMap()
+				for i in range(len(m)):
+					if m[i][self.botPos[1]]==1 and i<self.botPos[0]:
+						u=i
+						break
+				for i in range(len(m)):
+					if m[i][self.botPos[1]]==1 and i>self.botPos[0]:
+						d=i
+						break
+				for i in range(len(m[0])):
+					if m[self.botPos[0]][i]==1 and i<self.botPos[1]:
+						l = i
+						break
+				for i in range(len(m[0])):
+					if m[self.botPos[0]][i]==1 and i>self.botPos[1]:
+						r = i
+						break
+				print u,d,l,r
+				self.com.updateMap((l,r,u,d))
+				#self.com.updateMap(self.room.getMap())
+				time.sleep(5)
 				self.com.sendMessage("bot")
+				time.sleep(1)
 				self.com.sendBotLocation((self.botPos[0],self.botPos[1],self.botAngle))
+				time.sleep(1)
+				self.com.sendMessage("mes")
+				time.sleep(1)
 				self.com.sendMessage("Mapping Complete!")
 				break
 				#complete
+			'''
 			self.com.sendMessage("data")
+			time.sleep(1)
 			self.com.updateMap(self.room.getMap())
+			time.sleep(5)
 			self.com.sendMessage("bot")
+			time.sleep(1)
 			self.com.sendBotLocation((self.botPos[0],self.botPos[1],self.botAngle))
-
+			time.sleep(1)
+			'''
 		#print "Location: " + str(self.move.location)
 
 		'''

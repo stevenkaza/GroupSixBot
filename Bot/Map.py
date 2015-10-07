@@ -104,6 +104,7 @@ class Map:
                         for j in range(len(self.room)):
                             for k in range(int(i[0])):
                                 self.room[j].insert(len(self.room[j]),0)
+                    if i[0]!=MAXVIEW:
                         self.room[self.pos[0]][self.pos[1]+int(math.floor(i[0]))] = 1
                 #down
                 elif i[1]==180:
@@ -173,7 +174,8 @@ class Map:
                 if ([self.room[i+k][j-1] for k in [-1,0,1]].count(1)==3 and j>self.pos[1]) or ([self.room[i+k][j+1] for k in [-1,0,1]].count(1)==3 and j<self.pos[1]) or ([self.room[i-1][j+k] for k in [-1,0,1]].count(1)==3 and i>self.pos[0]) or ([self.room[i+1][j+k] for k in [-1,0,1]].count(1)==3 and i< self.pos[0]) :
                     self.room[i][j]=9
         self.room[self.pos[0]][self.pos[1]] = 8
-        return
+        return self.pos
+	
     def nextRoute(self):
         return
     def isMapped(self):
@@ -188,7 +190,6 @@ class Map:
         for i in range(len(self.room)):
             if self.room[i][self.pos[1]] == 1:
                 if i>self.pos[0] and fillD==-1:
-                    print "y"
                     fillD=i
                 elif i<self.pos[0] and fillU==-1:
                     fillU=i
@@ -263,13 +264,14 @@ class Map:
         if moveU: 
             return "U"
         return
-'''
 
+'''
 m=Map([[10,0],[100,90],[10,180],[20,270]])
 m.fillMap90()
 m.showRoom()
 nr = m.nextRoute90()
-
+'''
+'''
 m.updatePos([m.pos[0],m.pos[1]+MAXVIEW-20])
 m.updateMap([[10,0],[30,90],[10,180],[70,270]])
 m.fillMap90()
