@@ -6,15 +6,16 @@ from Tkinter import *
 
 from PIL import Image, ImageTk
 
-#from SocketHelper import *
+#from SocketHelper import * #Uncomment
 import threading
 import time
 import thread
 import os
-#from socket import *
+#from socket import * #Uncomment
 import sys
-#from Map import *
+#from Map import * #Uncomment
 import Queue
+from ProcessRoom import *
 
 windowWidth = 675
 windowHeight = 550
@@ -61,6 +62,13 @@ def worldSpaceToCanvasSpace(position):
 def exitRoomMapper():
 	if tkMessageBox.askyesno('Quitting . . .', 'Are you sure you want to quit?'):
 		gui.quit()
+
+		
+def saveMapComparison(self):
+	print "Saved map to rooms" 
+	filename = "./rooms/testRoom" #Find next room number, no .txt it seems
+	pr = ProcessRoom()
+	pr.saveFile(filename, currentData)
 		
 def saveMap(self):
 	self.canvas.postscript(file = "map.ps", colormode = 'color')
@@ -88,6 +96,7 @@ def mainMenu(r):
 	#fileMenu.add("command", label="Save Map", command = saveMap, state = DISABLED)
 	#fileMenu.add("command", label="Save As", command = saveFileAs, state = DISABLED)
 	
+	fileMenu.add("command", label="Save Map for Comparison", command = lambda: saveMapComparison(r))
 	fileMenu.add("command", label="Save Map to PostScript", command = lambda: saveMap(r))
 	fileMenu.add("command", label="Save Text Log", command = lambda: saveTextLog(r))
 	fileMenu.add("command", label="Exit", command = exitRoomMapper)
@@ -123,9 +132,6 @@ def drawLine(self, data):
 
 	startPoint = (data[0], data[1])
 	endPoint = (data[2], data[3])
-	
-	#print "Start Point" + str(startPoint)
-	#print "End Point" + str(endPoint)
 	
 	startPoint = worldSpaceToCanvasSpace(startPoint)
 	endPoint = worldSpaceToCanvasSpace(endPoint)
@@ -193,6 +199,25 @@ def setupMapping(self):
 	self.points = []
 	self.walls = []
 	self.labels = []
+
+def makeBox(loc = ()):
+
+	length = int(loc[0] + loc[1]) + 5
+	width = int(loc[2] + loc[3]) + 5
+
+	room = []
+
+	for i in range(length):
+		line = []
+		for j in range(width):
+			if (i == 0 or j == 0) or (i == length - 1) or (j == width - 1):
+				line.append(1)
+			else:
+				line.append(0)
+
+		room.append(line)
+
+	return room
 	
 """
 	This function checks the socket for messages for the GUI
@@ -214,43 +239,23 @@ def display(queue, running, sh, root):
 
 		elif message == "data":
 
-			mesStr1 = sh.listener.recv(sh.buf)
-	
-			s1 = json.loads(mesStr1)
-
-			mesStr2 = sh.listener.recv(sh.buf)
-		
-			s2 = json.loads(mesStr2)
-
-			mesStr1 = sh.listener.recv(sh.buf)
-		
-			e1 = json.loads(mesStr1)
-
-			mesStr2 = sh.listener.recv(sh.buf)
-			e2 = json.loads(mesStr2)
-
-			m = []
-
-			for i in range(len(s1)):
-				line = s1[i]
-				line.extend(s2[i])
-				line.extend(e1[i])
-				line.extend(e2[i])
-				m.append(line)
+			mesStr = sh.listener.recv(sh.buf)
+			print mesStr
+			s = json.loads(mesStr)
+			m = makeBox(s)
 
 			queue.put((root.drawOnMap,[m]))
-
+	
 		elif message == "bot":
 			mesStr = sh.listener.recv(sh.buf)
 			m = json.loads(mesStr)
-			queue.put((root.botLocation,[m]))
-		
+			queue.put((root.botLocation,[m]))		
 
 	sh.listener.close()
 	sh.server.close()
 	os._exit(0)
 			
-class UITesting(Tk):	
+class GUI(Tk):	
 	def __init__(self, port = 13000 , queue = None):
 		Tk.__init__(self)
 		
@@ -286,18 +291,38 @@ class UITesting(Tk):
 		self.canvas.pack()
 		
 		#Create Compare Button
-		self.compareButton = Button(compareFrame, text = "Compare Room", command = lambda: 	gui.displayMessage(gui.compareRoom()))
+		self.compareButton = Button(compareFrame, text = "Compare Room", command = lambda: gui.displayMessage(gui.compareRoom()))
 		self.compareButton.pack()
 		
 		m = mainMenu(self)
 		self.configure(menu = m)
 		
-		#self.queue = queue #this is the job queue
+		self.queue = queue #this is the job queue
 
-		#self.textBox.after(50, self.check_queue)
+		#self.textBox.after(50, self.check_queue) #Uncomment
+		
+		self.currentRoom = [] #current 2D array(used for comparing rooms)
 	
 	def compareRoom(self):
-		return "Compare Rooms Test"
+
+		mypath = "./rooms"
+		onlyfiles = [ f for f in listdir(mypath) if isfile(join(mypath,f)) ]
+
+		pr = ProcessRoom()
+
+		room = pr.openFile("./rooms/rooms2")
+
+		roomList = ""
+
+		for i in onlyfiles:
+			r = pr.openFile(mypath+'/'+i)
+			if pr.sameRoom(room,r):
+				roomList += i + "\n"
+
+		if roomList == "":
+			return "No similar rooms found"
+		else:
+			return "Similar Rooms: \n" + roomList
 	
 	def clearMap(self):
 		print "Clear Map"
@@ -559,10 +584,13 @@ class UITesting(Tk):
 		global currentData
 		global mapWidth
 		global mapHeight
+		
+		self.currentRoom = data
+		
 		mapWidth = float(len(data))
 		mapHeight = float(len(data[0]))
 		
-		#Copy data incase final map
+		#Copy data in case final map
 		currentData = data[:]
 		gui.clearMap()
 		
@@ -572,7 +600,6 @@ class UITesting(Tk):
 			for entry in dataRow:
 				column += 1
 				self.mapPoints(row, column, entry)
-				#print "(" + str(row) + "," + str(column) + ") : " + str(entry)
 			row += 1
 			column = 0
 
@@ -611,7 +638,6 @@ class UITesting(Tk):
 	
 #Main Starts here
 
-"""
 if __name__ == "__main__":
 
 	port = 13000
@@ -631,10 +657,10 @@ if __name__ == "__main__":
 
 	q = Queue.Queue()
 	running = [True]
-"""
 
-gui = UITesting() #Change to GUI(port = 13000,queue = q)
-"""
+
+	gui = GUI(port = 13000,queue = q)
+	""" # Uncomment
 	sh = SocketHelper(port = port)
 
 	gui.textBox.bind('<Destroy>', lambda x: (running.pop(), x.widget.destroy()))
@@ -642,29 +668,29 @@ gui = UITesting() #Change to GUI(port = 13000,queue = q)
 	thread = threading.Thread(target = display, args = (q, running, sh, gui))
 	thread.setDaemon(True)
 	thread.start()
-"""
+	"""
 
-setupMapping(gui)
-setupBotIcon(gui, (mapWidth / 2.0, mapHeight / 2.0))
-setupBotAngle(gui, 0)
+	setupMapping(gui)
+	setupBotIcon(gui, (mapWidth / 2.0, mapHeight / 2.0))
+	setupBotAngle(gui, 0)
 
-#Testing
-isTesting = True
+	#Testing
+	isTesting = True
 
-if isTesting == True:
-	drawLine(gui, (0, 0, 50, 50))
-	drawPoint(gui, (50, 50), 'blue')
-	gui.displayMessage("Test")
-	updateBotPos(gui, (250, 250))
-	updateBotAngle(gui, 90)
-	mapText(gui, (300, 300), "Test", 'blue')
-	map = readTestFile("sampleMap01.txt")
-	#map = readTestFile("sampleMap02.txt")
-	#map = readTestFile("sampleMap03.txt")
-	#map = readTestFile("sampleMap04.txt")
-	#map = readTestFile("sampleMap05.txt")
-	gui.drawOnMap(map)
-	
-	gui.displayMessage("Mapping Complete!")
+	if isTesting == True:
+		drawLine(gui, (0, 0, 50, 50))
+		drawPoint(gui, (50, 50), 'blue')
+		gui.displayMessage("Test")
+		updateBotPos(gui, (250, 250))
+		updateBotAngle(gui, 90)
+		mapText(gui, (300, 300), "Test", 'blue')
+		map = readTestFile("sampleMap01.txt")
+		#map = readTestFile("sampleMap02.txt")
+		#map = readTestFile("sampleMap03.txt")
+		#map = readTestFile("sampleMap04.txt")
+		#map = readTestFile("sampleMap05.txt")
+		gui.drawOnMap(map)
+		
+		gui.displayMessage("Mapping Complete!")
 
-gui.mainloop()
+	gui.mainloop()
