@@ -9,261 +9,261 @@ DIST180=0
 DIST270=0
 
 class Map:
-    room = [[8]]
-    pos = [0,0]
+	room = [[8]]
+	pos = [0,0]
     
-    #the first 4 points must be cardinal directions[up,right,down,left,...], the rest can be any
-    def __init__(self, points):
-        #points = [dist,angle]
-        for i in points:
-            if i[1]%90 == 0:
-                if int(math.floor(i[0]))>MAXVIEW:
-                    if i[1]==0:
-                        for j in range(MAXVIEW):
-                            self.room.insert(0,[0 for k in range(len(self.room[0]))])
-                        self.pos[0] = self.pos[0]+MAXVIEW    
-                    if i[1]==90:
-                        for j in range(len(self.room)):
-                            for k in range(MAXVIEW):
-                                self.room[j].insert(len(self.room[j]),0)
-                    if i[1]==180:
-                        for j in range(MAXVIEW):
-                            self.room.insert(len(self.room),[0 for k in range(len(self.room[0]))])
-                    if i[1]==270:
-                        for j in range(len(self.room)):
-                            for k in range(MAXVIEW):
-                                self.room[j].insert(0,0)
-                        self.pos[1] = self.pos[1]+MAXVIEW
+	#the first 4 points must be cardinal directions[up,right,down,left,...], the rest can be any
+	def __init__(self, points):
+		#points = [dist,angle]
+		for i in points:
+			if i[1]%90 == 0:
+				if int(math.floor(i[0]))>MAXVIEW:
+					if i[1]==0:
+						for j in range(MAXVIEW):
+							self.room.insert(0,[0 for k in range(len(self.room[0]))])
+						self.pos[0] = self.pos[0]+MAXVIEW    
+					if i[1]==90:
+						for j in range(len(self.room)):
+							for k in range(MAXVIEW):
+								self.room[j].insert(len(self.room[j]),0)
+					if i[1]==180:
+						for j in range(MAXVIEW):
+							self.room.insert(len(self.room),[0 for k in range(len(self.room[0]))])
+					if i[1]==270:
+						for j in range(len(self.room)):
+							for k in range(MAXVIEW):
+								self.room[j].insert(0,0)
+						self.pos[1] = self.pos[1]+MAXVIEW
                             
-                else:
-                    if i[1]==0:
-                        for j in range(int(math.floor(i[0]))):
-                            self.room.insert(0,[0 for k in range(len(self.room[0]))])
-                        self.room[self.pos[0]-int(math.floor(i[0]))-1][self.pos[1]] = 1
-                        self.pos[0] = self.pos[0]+int(math.floor(i[0]))    
-                    if i[1]==90:
-                        for j in range(len(self.room)):
-                            for k in range(int(i[0])):
-                                self.room[j].insert(len(self.room[j]),0)
-                        self.room[self.pos[0]][self.pos[1]+int(math.floor(i[0]))] = 1
-                    if i[1]==180:
-                        for j in range(int(math.floor(i[0]))):
-                            self.room.insert(len(self.room),[0 for k in range(len(self.room[0]))])
-                        self.room[self.pos[0]+int(math.floor(i[0]))][self.pos[1]] = 1
+				else:
+					if i[1]==0:
+						for j in range(int(math.floor(i[0]))):
+							self.room.insert(0,[0 for k in range(len(self.room[0]))])
+						self.room[self.pos[0]-int(math.floor(i[0]))-1][self.pos[1]] = 1
+						self.pos[0] = self.pos[0]+int(math.floor(i[0]))    
+					if i[1]==90:
+						for j in range(len(self.room)):
+							for k in range(int(i[0])):
+								self.room[j].insert(len(self.room[j]),0)
+						self.room[self.pos[0]][self.pos[1]+int(math.floor(i[0]))] = 1
+					if i[1]==180:
+						for j in range(int(math.floor(i[0]))):
+							self.room.insert(len(self.room),[0 for k in range(len(self.room[0]))])
+						self.room[self.pos[0]+int(math.floor(i[0]))][self.pos[1]] = 1
 
-                    if i[1]==270:
-                        for j in range(len(self.room)):
-                            for k in range(int(i[0])):
-                                self.room[j].insert(0,0)
-                        self.pos[1] = self.pos[1]+int(math.floor(i[0]))    
-                        self.room[self.pos[0]][self.pos[1]-int(math.floor(i[0]))] = 1
-            else:
-                self.room[self.pos[0]+int(math.floor(min(i[0],MAXVIEW)*-math.cos(i[1]*math.pi/180)))][self.pos[1]+int(math.floor(min(i[0],MAXVIEW)*math.sin(i[1]*math.pi/180)))] = 1
-                #print self.pos[0]+int(math.floor(min(i[0],MAXVIEW)*math.sin(i[1]*math.pi/180)))
-                #print self.pos[0]+int(math.floor(min(i[0],MAXVIEW)*-math.cos(i[1]*math.pi/180)))
-    def showRoom(self):
-        for i in self.room:
-                print i
-        print self.pos
-    def getMap(self):
-        return self.room
-    def updatePos(self,newPos):
-        self.room[self.pos[0]][self.pos[1]]=0
-        self.pos = newPos
-        self.room[self.pos[0]][self.pos[1]]=8
-        return
+					if i[1]==270:
+						for j in range(len(self.room)):
+							for k in range(int(i[0])):
+								self.room[j].insert(0,0)
+						self.pos[1] = self.pos[1]+int(math.floor(i[0]))    
+						self.room[self.pos[0]][self.pos[1]-int(math.floor(i[0]))] = 1
+			else:
+				self.room[self.pos[0]+int(math.floor(min(i[0],MAXVIEW)*-math.cos(i[1]*math.pi/180)))][self.pos[1]+int(math.floor(min(i[0],MAXVIEW)*math.sin(i[1]*math.pi/180)))] = 1
+				#print self.pos[0]+int(math.floor(min(i[0],MAXVIEW)*math.sin(i[1]*math.pi/180)))
+				#print self.pos[0]+int(math.floor(min(i[0],MAXVIEW)*-math.cos(i[1]*math.pi/180)))
+	def showRoom(self):
+		for i in self.room:
+				print i
+		print self.pos
+	def getMap(self):
+		return self.room
+	def updatePos(self,newPos):
+		self.room[self.pos[0]][self.pos[1]]=0
+		self.pos = newPos
+		self.room[self.pos[0]][self.pos[1]]=8
+		return
 
-    def updateMap(self,points):
-        #wallDist = [up,right,down,left] 
-        wallDist = list()
-        wallDist.append(self.pos[0])
-        wallDist.append(len(self.room[0])-self.pos[1]-1)
-        wallDist.append(len(self.room)-self.pos[0]-1)
-        wallDist.append(self.pos[1])
-        self.room[self.pos[0]][self.pos[1]]=0
-        over = 0
-        for i in points:
-            i[0]= min(i[0],MAXVIEW)
-            #i[1]=i[1]/2
-            if i[1]%90 == 0:
-                #up
-                if i[1]==0:
-                    if i[0]>wallDist[0]:
-                        over = int(i[0]-wallDist[0])
-                        #print over    
-                        for j in range(int(over)):
-                            self.room.insert(0,[0 for k in range(len(self.room[0]))])
-                        self.pos[0] = self.pos[0]+over    
-                    if i[0]!=MAXVIEW:
-                        self.room[self.pos[0]-int(math.floor(i[0]))][self.pos[1]] = 1
-                #right            
-                elif i[1]==90:
-                    if int(math.floor(i[0]))>wallDist[1]:
-                        over = int(i[0])-wallDist[1]
-                        #print over    
-                        for j in range(len(self.room)):
-                            for k in range(int(i[0])):
-                                self.room[j].insert(len(self.room[j]),0)
-                    if i[0]!=MAXVIEW:
-                        self.room[self.pos[0]][self.pos[1]+int(math.floor(i[0]))] = 1
-                #down
-                elif i[1]==180:
-                    if i[0]>wallDist[2]:
-                        over = int(i[0]-wallDist[2])
-                        #print over    
-                        for j in range(int(over)):
-                            self.room.insert(len(self.room),[0 for k in range(len(self.room[0]))])
-                    if i[0]!=MAXVIEW:
-                        self.room[self.pos[0]+int(math.floor(i[0]))][self.pos[1]] = 1
-                #left       
-                elif i[1]==270:
-                    if i[0]>wallDist[3]:
-                        over = int(i[0]-wallDist[3])
-                        #print over    
-                        for j in range(int(over)):
-                            for k in range(len(self.room)):
-                                self.room[k].insert(0,0)
-                        self.pos[1] = self.pos[1]+over    
-                    if i[0]!=MAXVIEW:
-                        self.room[self.pos[0]][self.pos[1]-int(math.floor(i[0]))] = 1
-            else:
-                if self.pos[0]+int(math.floor(min(i[0],MAXVIEW)*-math.cos(i[1]*math.pi/180.0)))>=len(self.room):
-                    p =self.pos[0]+int(math.floor(min(i[0],MAXVIEW)*-math.cos(i[1]*math.pi/180.0))) - len(self.room)
-                    for j in range (p+1):
-                        self.room.insert(len(self.room),[0 for k in range(len(self.room[0]))])
+	def updateMap(self,points):
+		#wallDist = [up,right,down,left] 
+		wallDist = list()
+		wallDist.append(self.pos[0])
+		wallDist.append(len(self.room[0])-self.pos[1]-1)
+		wallDist.append(len(self.room)-self.pos[0]-1)
+		wallDist.append(self.pos[1])
+		self.room[self.pos[0]][self.pos[1]]=0
+		over = 0
+		for i in points:
+			i[0]= min(i[0],MAXVIEW)
+			#i[1]=i[1]/2
+			if i[1]%90 == 0:
+				#up
+				if i[1]==0:
+					if i[0]>wallDist[0]:
+						over = int(i[0]-wallDist[0])
+						#print over    
+						for j in range(int(over)):
+							self.room.insert(0,[0 for k in range(len(self.room[0]))])
+						self.pos[0] = self.pos[0]+over    
+					if i[0]!=MAXVIEW:
+						self.room[self.pos[0]-int(math.floor(i[0]))][self.pos[1]] = 1
+				#right            
+				elif i[1]==90:
+					if int(math.floor(i[0]))>wallDist[1]:
+						over = int(i[0])-wallDist[1]
+						#print over    
+						for j in range(len(self.room)):
+							for k in range(int(i[0])):
+								self.room[j].insert(len(self.room[j]),0)
+					if i[0]!=MAXVIEW:
+						self.room[self.pos[0]][self.pos[1]+int(math.floor(i[0]))] = 1
+				#down
+				elif i[1]==180:
+					if i[0]>wallDist[2]:
+						over = int(i[0]-wallDist[2])
+						#print over    
+						for j in range(int(over)):
+							self.room.insert(len(self.room),[0 for k in range(len(self.room[0]))])
+					if i[0]!=MAXVIEW:
+						self.room[self.pos[0]+int(math.floor(i[0]))][self.pos[1]] = 1
+				#left       
+				elif i[1]==270:
+					if i[0]>wallDist[3]:
+						over = int(i[0]-wallDist[3])
+						#print over    
+						for j in range(int(over)):
+							for k in range(len(self.room)):
+								self.room[k].insert(0,0)
+						self.pos[1] = self.pos[1]+over    
+					if i[0]!=MAXVIEW:
+						self.room[self.pos[0]][self.pos[1]-int(math.floor(i[0]))] = 1
+			else:
+				if self.pos[0]+int(math.floor(min(i[0],MAXVIEW)*-math.cos(i[1]*math.pi/180.0)))>=len(self.room):
+					p =self.pos[0]+int(math.floor(min(i[0],MAXVIEW)*-math.cos(i[1]*math.pi/180.0))) - len(self.room)
+					for j in range (p+1):
+						self.room.insert(len(self.room),[0 for k in range(len(self.room[0]))])
                         
-                elif self.pos[0]+int(math.floor(min(i[0],MAXVIEW)*-math.cos(i[1]*math.pi/180.0)))<=0:
-                    p =abs(self.pos[0]+int(math.floor(min(i[0],MAXVIEW)*-math.cos(i[1]*math.pi/180.0))))
-                    for j in range (p+1):
-                        self.room.insert(0,[0 for k in range(len(self.room[0]))])
-                    self.pos[0]=self.pos[0]+p
-                if self.pos[1]+int(math.floor(min(i[0],MAXVIEW)*math.sin(i[1]*math.pi/180.0))) >= len(self.room[0]):
-                    p = self.pos[1]+int(math.floor(min(i[0],MAXVIEW)*math.sin(i[1]*math.pi/180.0))) - len(self.room[0])
-                    for j in range(len(self.room)):
-                        for q in range(p+1):
-                            self.room[j].insert(len(self.room[j]),0)
+				elif self.pos[0]+int(math.floor(min(i[0],MAXVIEW)*-math.cos(i[1]*math.pi/180.0)))<=0:
+					p =abs(self.pos[0]+int(math.floor(min(i[0],MAXVIEW)*-math.cos(i[1]*math.pi/180.0))))
+					for j in range (p+1):
+						self.room.insert(0,[0 for k in range(len(self.room[0]))])
+					self.pos[0]=self.pos[0]+p
+				if self.pos[1]+int(math.floor(min(i[0],MAXVIEW)*math.sin(i[1]*math.pi/180.0))) >= len(self.room[0]):
+					p = self.pos[1]+int(math.floor(min(i[0],MAXVIEW)*math.sin(i[1]*math.pi/180.0))) - len(self.room[0])
+					for j in range(len(self.room)):
+						for q in range(p+1):
+							self.room[j].insert(len(self.room[j]),0)
                             
-                elif self.pos[1]+int(math.floor(min(i[0],MAXVIEW)*math.sin(i[1]*math.pi/180.0))) <=0:
-                    p = abs(self.pos[1]+int(math.floor(min(i[0],MAXVIEW)*math.sin(i[1]*math.pi/180.0))))
-                    for j in range(len(self.room)):
-                        for q in range(p+1):
-                            self.room[j].insert(0,0)
-                    self.pos[1] = self.pos[1]+p+1
+				elif self.pos[1]+int(math.floor(min(i[0],MAXVIEW)*math.sin(i[1]*math.pi/180.0))) <=0:
+					p = abs(self.pos[1]+int(math.floor(min(i[0],MAXVIEW)*math.sin(i[1]*math.pi/180.0))))
+					for j in range(len(self.room)):
+						for q in range(p+1):
+							self.room[j].insert(0,0)
+					self.pos[1] = self.pos[1]+p+1
                 
-                try:
-                    self.room[self.pos[0]+int(math.floor(min(i[0],MAXVIEW)*-math.cos(i[1]*math.pi/180.0)))][self.pos[1]+int(math.floor(min(i[0],MAXVIEW)*math.sin(i[1]*math.pi/180.0)))] = 1
-                except:
-                    pass
-        for i in range(1,len(self.room)-1):
-            for j in range(1,len(self.room[i])-1):
-                if self.room[i][j]==0:
-                    #looks to the left and right
-                    if (([self.room[i+k][j-1] for k in [-1,0,1]].count(1)>0 and [self.room[i+k][j-1] for k in [-1,0,1]].count(1)<2) or ([self.room[i+k][j-1] for k in [-1,0,1]].count(4)>0 and [self.room[i+k][j-1] for k in [-1,0,1]].count(4)<2)) and (([self.room[i+k][j+1] for k in [-1,0,1]].count(1)>0 and [self.room[i+k][j+1] for k in [-1,0,1]].count(1)<2) or ([self.room[i+k][j+1] for k in [-1,0,1]].count(4)>0 and [self.room[i+k][j+1] for k in [-1,0,1]].count(4)<2)): 
-                        if ([self.room[i-1][j+k] for k in [-1,0,1]].count(1)>0) or ([self.room[i+1][j+k] for k in [-1,0,1]].count(1)>0) or ([self.room[i-1][j+k] for k in [-1,0,1]].count(4)>0) or ([self.room[i+1][j+k] for k in [-1,0,1]].count(4)>0):
-                            continue
-                        self.room[i][j]=1
-                    elif (([self.room[i-1][j+k] for k in [-1,0,1]].count(1)>0 and [self.room[i-1][j+k] for k in [-1,0,1]].count(1)<2) or ([self.room[i-1][j+k] for k in [-1,0,1]].count(4)>0 and [self.room[i-1][j+k] for k in [-1,0,1]].count(4)<2)) and (([self.room[i+1][j+k] for k in [-1,0,1]].count(1)>0 and [self.room[i+1][j+k] for k in [-1,0,1]].count(1)<2) or ([self.room[i+1][j+k] for k in [-1,0,1]].count(4)>0 and [self.room[i+1][j+k] for k in [-1,0,1]].count(4)<2)): 
-                        if ([self.room[i+k][j-1] for k in [-1,0,1]].count(1)>0 ) or ([self.room[i+k][j+1] for k in [-1,0,1]].count(1)>0) or ([self.room[i+k][j-1] for k in [-1,0,1]].count(4)>0) or ([self.room[i+k][j+1] for k in [-1,0,1]].count(4)>0):
-                            continue
-                        self.room[i][j]=1
-                    if [self.room[i+k][j+l] for k in [-1,0,1] for l in [-1,0,1]].count(1)>0:
-                        continue
-                        #print [self.room[i+k][j+l] for k in [-1,0,1] for l in [-1,0,1]]
-        for i in range(1,len(self.room)-1):
-            for j in range(1,len(self.room[i])-1):
-                if ([self.room[i+k][j-1] for k in [-1,0,1]].count(1)==3 and j>self.pos[1]) or ([self.room[i+k][j+1] for k in [-1,0,1]].count(1)==3 and j<self.pos[1]) or ([self.room[i-1][j+k] for k in [-1,0,1]].count(1)==3 and i>self.pos[0]) or ([self.room[i+1][j+k] for k in [-1,0,1]].count(1)==3 and i< self.pos[0]) :
-                    self.room[i][j]=9
-        self.room[self.pos[0]][self.pos[1]] = 8
-        return self.pos
+				try:
+					self.room[self.pos[0]+int(math.floor(min(i[0],MAXVIEW)*-math.cos(i[1]*math.pi/180.0)))][self.pos[1]+int(math.floor(min(i[0],MAXVIEW)*math.sin(i[1]*math.pi/180.0)))] = 1
+				except:
+					pass
+		for i in range(1,len(self.room)-1):
+			for j in range(1,len(self.room[i])-1):
+				if self.room[i][j]==0:
+					#looks to the left and right
+					if (([self.room[i+k][j-1] for k in [-1,0,1]].count(1)>0 and [self.room[i+k][j-1] for k in [-1,0,1]].count(1)<2) or ([self.room[i+k][j-1] for k in [-1,0,1]].count(4)>0 and [self.room[i+k][j-1] for k in [-1,0,1]].count(4)<2)) and (([self.room[i+k][j+1] for k in [-1,0,1]].count(1)>0 and [self.room[i+k][j+1] for k in [-1,0,1]].count(1)<2) or ([self.room[i+k][j+1] for k in [-1,0,1]].count(4)>0 and [self.room[i+k][j+1] for k in [-1,0,1]].count(4)<2)): 
+						if ([self.room[i-1][j+k] for k in [-1,0,1]].count(1)>0) or ([self.room[i+1][j+k] for k in [-1,0,1]].count(1)>0) or ([self.room[i-1][j+k] for k in [-1,0,1]].count(4)>0) or ([self.room[i+1][j+k] for k in [-1,0,1]].count(4)>0):
+							continue
+						self.room[i][j]=1
+					elif (([self.room[i-1][j+k] for k in [-1,0,1]].count(1)>0 and [self.room[i-1][j+k] for k in [-1,0,1]].count(1)<2) or ([self.room[i-1][j+k] for k in [-1,0,1]].count(4)>0 and [self.room[i-1][j+k] for k in [-1,0,1]].count(4)<2)) and (([self.room[i+1][j+k] for k in [-1,0,1]].count(1)>0 and [self.room[i+1][j+k] for k in [-1,0,1]].count(1)<2) or ([self.room[i+1][j+k] for k in [-1,0,1]].count(4)>0 and [self.room[i+1][j+k] for k in [-1,0,1]].count(4)<2)): 
+						if ([self.room[i+k][j-1] for k in [-1,0,1]].count(1)>0 ) or ([self.room[i+k][j+1] for k in [-1,0,1]].count(1)>0) or ([self.room[i+k][j-1] for k in [-1,0,1]].count(4)>0) or ([self.room[i+k][j+1] for k in [-1,0,1]].count(4)>0):
+							continue
+						self.room[i][j]=1
+					if [self.room[i+k][j+l] for k in [-1,0,1] for l in [-1,0,1]].count(1)>0:
+						continue
+						#print [self.room[i+k][j+l] for k in [-1,0,1] for l in [-1,0,1]]
+		for i in range(1,len(self.room)-1):
+			for j in range(1,len(self.room[i])-1):
+				if ([self.room[i+k][j-1] for k in [-1,0,1]].count(1)==3 and j>self.pos[1]) or ([self.room[i+k][j+1] for k in [-1,0,1]].count(1)==3 and j<self.pos[1]) or ([self.room[i-1][j+k] for k in [-1,0,1]].count(1)==3 and i>self.pos[0]) or ([self.room[i+1][j+k] for k in [-1,0,1]].count(1)==3 and i< self.pos[0]) :
+					self.room[i][j]=9
+		self.room[self.pos[0]][self.pos[1]] = 8
+		return self.pos
 	
-    def nextRoute(self):
-        return
-    def isMapped(self):
-        return False
+	def nextRoute(self):
+		return
+	def isMapped(self):
+		return False
 	
-    def fillMap90(self):
-        fillR =-1
-        fillL =-1
-        fillU =-1
-        fillD =-1
-        print self.pos
-        for i in range(len(self.room)):
-            if self.room[i][self.pos[1]] == 1:
-                if i>self.pos[0] and fillD==-1:
-                    fillD=i
-                elif i<self.pos[0] and fillU==-1:
-                    fillU=i
-        for i in range(len(self.room[self.pos[0]])):
-            if self.room[self.pos[0]][i]==1:
-                if i>self.pos[1] and fillR==-1:
-                    fillR=i
-                elif i<self.pos[1] and fillL==-1:
-                    fillL=i
-        if fillR!=-1:
-            for i in range(len(self.room)):
-                self.room[i][fillR] =1
-        if fillL!=-1:
-            for i in range(len(self.room)):
-                self.room[i][fillL]=1
-        if fillU!=-1:
-            for i in range(len(self.room[0])):
-                self.room[fillU][i]=1
-        if fillD!=-1:
-            for i in range(len(self.room[0])):
-                self.room[fillD][i]=1
-        return
+	def fillMap90(self):
+		fillR =-1
+		fillL =-1
+		fillU =-1
+		fillD =-1
+		print self.pos
+		for i in range(len(self.room)):
+			if self.room[i][self.pos[1]] == 1:
+				if i>self.pos[0] and fillD==-1:
+					fillD=i
+				elif i<self.pos[0] and fillU==-1:
+					fillU=i
+		for i in range(len(self.room[self.pos[0]])):
+			if self.room[self.pos[0]][i]==1:
+				if i>self.pos[1] and fillR==-1:
+					fillR=i
+				elif i<self.pos[1] and fillL==-1:
+					fillL=i
+		if fillR!=-1:
+			for i in range(len(self.room)):
+				self.room[i][fillR] =1
+		if fillL!=-1:
+			for i in range(len(self.room)):
+				self.room[i][fillL]=1
+		if fillU!=-1:
+			for i in range(len(self.room[0])):
+				self.room[fillU][i]=1
+		if fillD!=-1:
+			for i in range(len(self.room[0])):
+				self.room[fillD][i]=1
+		return
 
-    def makeBox(self):
-        length = int(len(self.room))
-        width = int(len(self.room[0]))
+	def makeBox(self):
+		length = int(len(self.room))
+		width = int(len(self.room[0]))
 
-        room = []
+		room = []
 
-        for i in range(length):
-            line = []
-            for j in range(width):
-                if (i == 0 or j == 0) or (i == length - 1) or (j == width - 1):
-                    line.append(1)
-                else:
-                    line.append(0)
+		for i in range(length):
+			line = []
+			for j in range(width):
+				if (i == 0 or j == 0) or (i == length - 1) or (j == width - 1):
+					line.append(1)
+				else:
+					line.append(0)
 
-            room.append(line)
+			room.append(line)
 
-        room[int(self.top)][int(self.left)] = 8
+		room[int(self.top)][int(self.left)] = 8
 
-        return room
+		return room
 
 
-    def nextRoute90(self):
-        moveR=True
-        moveL=True
-        moveU=True
-        moveD=True
-        p = list()
-        for i in range(len(self.room)):
-            if self.room[i].count(1)==0:
-                continue
-            for j in range(len(self.room[i])):
-                if self.room[i][j]==1:
-                    p.append([i,j])
-        for i in p:
-            if i[0]>self.pos[0] and i[1]==self.pos[1]:
-                moveD=False
-            if i[0]<self.pos[0] and i[1]==self.pos[1]:
-                moveU=False
-            if i[1]>self.pos[1] and i[0]==self.pos[0]:
-                moveR=False
-            if i[1]<self.pos[1] and i[0]==self.pos[0]:
-                moveL=False
-        if moveD:
-            return "D"
-        if moveL:
-            return "L"
-        if moveR:
-            return "R"
-        if moveU: 
-            return "U"
-        return
+	def nextRoute90(self):
+		moveR=True
+		moveL=True
+		moveU=True
+		moveD=True
+		p = list()
+		for i in range(len(self.room)):
+			if self.room[i].count(1)==0:
+				continue
+			for j in range(len(self.room[i])):
+				if self.room[i][j]==1:
+					p.append([i,j])
+		for i in p:
+			if i[0]>self.pos[0] and i[1]==self.pos[1]:
+				moveD=False
+			if i[0]<self.pos[0] and i[1]==self.pos[1]:
+				moveU=False
+			if i[1]>self.pos[1] and i[0]==self.pos[0]:
+				moveR=False
+			if i[1]<self.pos[1] and i[0]==self.pos[0]:
+				moveL=False
+		if moveD:
+			return "D"
+		if moveL:
+			return "L"
+		if moveR:
+			return "R"
+		if moveU: 
+			return "U"
+		return
 
 '''
 m=Map([[10,0],[100,90],[10,180],[20,270]])

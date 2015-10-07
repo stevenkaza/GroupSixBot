@@ -90,21 +90,21 @@ class AI:
 					self.movement.turn(180-self.botAngle)
 					self.botAngle=180
 				self.movement.move(MAXVIEW-20)
-				self.botPos[0]=self.botPos[0]+MAXVIEW-20###################
+				self.botPos[0]=self.botPos[0]+MAXVIEW-20
 				self.room.updatePos(self.botPos)
 			elif nextDir=="R":
 				if self.botAngle!=90:
 					self.movement.turn(90-self.botAngle)
 					self.botAngle=90
 				self.movement.move(MAXVIEW-20)
-				self.botPos[1]=self.botPos[1]+MAXVIEW-20###################
+				self.botPos[1]=self.botPos[1]+MAXVIEW-20
 				self.room.updatePos(self.botPos)
 			elif nextDir=="L":
 				if self.botAngle!=270:
 					self.movement.turn(270-self.botAngle)
 					self.botAngle=270
 				self.movement.move(MAXVIEW-20)
-				self.botPos[1]=self.botPos[1]-MAXVIEW+20###################
+				self.botPos[1]=self.botPos[1]-MAXVIEW+20
 				self.room.updatePos(self.botPos)
 			elif nextDir == None:
 				self.room.showRoom()
