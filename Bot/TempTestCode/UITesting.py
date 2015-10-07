@@ -11,6 +11,7 @@ import threading
 import time
 import thread
 import os
+import os.path
 #from socket import * #Uncomment
 import sys
 #from Map import * #Uncomment
@@ -66,7 +67,18 @@ def exitRoomMapper():
 		
 def saveMapComparison(self):
 	print "Saved map to rooms" 
-	filename = "./rooms/testRoom" #Find next room number, no .txt it seems
+
+	files = listdir("./rooms/")
+	roomNum = files[len(files) - 1].split("_")[1] 
+
+	nextRoom = int(roomNum) + 1
+
+	filename = "./rooms/room_" + str(nextRoom)
+
+	while os.path.isfile(filename):
+		nextRoom += 1
+		filename = "./rooms/room_" + str(nextRoom)
+
 	pr = ProcessRoom()
 	pr.saveFile(filename, currentData)
 		
