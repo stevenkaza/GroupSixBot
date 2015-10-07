@@ -53,9 +53,15 @@ class Move:
 		return speed
 
 	def forward(self, speed = 100):
+		'''
 		self.left.set_normalized(1.0)
 		time.sleep(0.01)
+		print self.rightSpeed
 		self.right.set_normalized(-self.rightSpeed)
+		'''
+		self.movement.setMotorSpeed(pins.SERVO_LEFT_MOTOR,100)
+		time.sleep(0.01)
+		self.movement.setMotorSpeed(pins.SERVO_RIGHT_MOTOR, 50)
 
 
 	def move(self,distance):
@@ -73,7 +79,7 @@ class Move:
 
 		elif (result =="GOOD"):
 			self.forward(100)
-			time.sleep(distance/15.3)
+			time.sleep(distance/13.8)
 		#	return status
 		#account for the 5 degrees a second/ every 12 cm of curvature to the left
 		distanceMoved = cmAwayFromWall - self.sensor.getDistance()
@@ -113,7 +119,7 @@ class Move:
 		elif angle == 90 or angle == -90:
 			self.timeSpin = 0.005
 		else:
-			self.timeSpin = 0.00515
+			self.timeSpin = 0.005
 
 
 		print self.timeSpin
@@ -138,6 +144,7 @@ if __name__ == "__main__":
 	bot.stop()
 	print bot.sensor.getDistance()
 
+	'''
 
 	while(s !='s'):
 		s = raw_input("Distance: ")
@@ -154,8 +161,8 @@ if __name__ == "__main__":
 
 	
 	bot.movement.stop()
-	
 	'''
+	
 	count = 0
 	
 
@@ -178,5 +185,5 @@ if __name__ == "__main__":
 			count += 1
 
 	bot.movement.stop()
-	
+	'''
 	

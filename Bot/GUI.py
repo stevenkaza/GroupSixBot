@@ -214,8 +214,8 @@ def setupMapping(self):
 
 def makeBox(loc = ()):
 
-	length = int(loc[0] + loc[1]) + 7
-	width = int(loc[2] + loc[3]) + 7
+	length = int(loc[0] + loc[1]) + 8
+	width = int(loc[2] + loc[3]) + 5
 
 	room = []
 
