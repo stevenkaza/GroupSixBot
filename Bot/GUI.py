@@ -6,14 +6,15 @@ from Tkinter import *
 
 from PIL import Image, ImageTk
 
-from SocketHelper import *
+from SocketHelper import * 
 import threading
 import time
 import thread
 import os
-from socket import *
+import os.path
+from socket import * 
 import sys
-from Map import *
+from Map import * 
 import Queue
 from ProcessRoom import *
 
@@ -62,6 +63,24 @@ def worldSpaceToCanvasSpace(position):
 def exitRoomMapper():
 	if tkMessageBox.askyesno('Quitting . . .', 'Are you sure you want to quit?'):
 		gui.quit()
+
+		
+def saveMapComparison(self):
+	print "Saved map to rooms" 
+
+	files = listdir("./rooms/")
+	roomNum = files[len(files) - 1].split("_")[1] 
+
+	nextRoom = int(roomNum) + 1
+
+	filename = "./rooms/room_" + str(nextRoom)
+
+	while os.path.isfile(filename):
+		nextRoom += 1
+		filename = "./rooms/room_" + str(nextRoom)
+
+	pr = ProcessRoom()
+	pr.saveFile(filename, currentData)
 		
 def saveMap(self):
 	self.canvas.postscript(file = "map.ps", colormode = 'color')
@@ -89,6 +108,7 @@ def mainMenu(r):
 	#fileMenu.add("command", label="Save Map", command = saveMap, state = DISABLED)
 	#fileMenu.add("command", label="Save As", command = saveFileAs, state = DISABLED)
 	
+	fileMenu.add("command", label="Save Map for Comparison", command = lambda: saveMapComparison(r))
 	fileMenu.add("command", label="Save Map to PostScript", command = lambda: saveMap(r))
 	fileMenu.add("command", label="Save Text Log", command = lambda: saveTextLog(r))
 	fileMenu.add("command", label="Exit", command = exitRoomMapper)
@@ -124,9 +144,6 @@ def drawLine(self, data):
 
 	startPoint = (data[0], data[1])
 	endPoint = (data[2], data[3])
-	
-	#print "Start Point" + str(startPoint)
-	#print "End Point" + str(endPoint)
 	
 	startPoint = worldSpaceToCanvasSpace(startPoint)
 	endPoint = worldSpaceToCanvasSpace(endPoint)
@@ -251,7 +268,6 @@ def display(queue, running, sh, root):
 	os._exit(0)
 			
 class GUI(Tk):	
-
 	def __init__(self, port = 13000 , queue = None):
 		Tk.__init__(self)
 		
@@ -296,7 +312,7 @@ class GUI(Tk):
 		self.queue = queue #this is the job queue
 
 		self.textBox.after(50, self.check_queue)
-
+		
 		self.currentRoom = [] #current 2D array(used for comparing rooms)
 	
 	def compareRoom(self):
@@ -547,7 +563,8 @@ class GUI(Tk):
 			length = 0
 			row += 1
 			column = 0
-			
+		
+	
 	def processMap(self):
 		global currentData
 		
@@ -556,7 +573,8 @@ class GUI(Tk):
 		
 		gui.drawHorizontalWalls()
 		gui.drawVerticalWalls()
-			
+		
+		
 	#Map Data Legend
 	# 0 -> Empty
 	# 1 -> Wall
@@ -578,13 +596,13 @@ class GUI(Tk):
 		global currentData
 		global mapWidth
 		global mapHeight
-
+		
 		self.currentRoom = data
-
+		
 		mapWidth = float(len(data))
 		mapHeight = float(len(data[0]))
 		
-		#Copy data incase final map
+		#Copy data in case final map
 		currentData = data[:]
 		gui.clearMap()
 		
@@ -594,7 +612,6 @@ class GUI(Tk):
 			for entry in dataRow:
 				column += 1
 				self.mapPoints(row, column, entry)
-				#print "(" + str(row) + "," + str(column) + ") : " + str(entry)
 			row += 1
 			column = 0
 
@@ -633,7 +650,6 @@ class GUI(Tk):
 	
 #Main Starts here
 
-
 if __name__ == "__main__":
 
 	port = 13000
@@ -658,9 +674,7 @@ if __name__ == "__main__":
 	gui = GUI(port = 13000,queue = q)
 
 	sh = SocketHelper(port = port)
-
 	gui.textBox.bind('<Destroy>', lambda x: (running.pop(), x.widget.destroy()))
-
 	thread = threading.Thread(target = display, args = (q, running, sh, gui))
 	thread.setDaemon(True)
 	thread.start()
@@ -669,10 +683,10 @@ if __name__ == "__main__":
 	setupMapping(gui)
 	setupBotIcon(gui, (mapWidth / 2.0, mapHeight / 2.0))
 	setupBotAngle(gui, 0)
-	
+
 	#Testing
 	isTesting = False
-	
+
 	if isTesting == True:
 		drawLine(gui, (0, 0, 50, 50))
 		drawPoint(gui, (50, 50), 'blue')
@@ -688,5 +702,5 @@ if __name__ == "__main__":
 		gui.drawOnMap(map)
 		
 		gui.displayMessage("Mapping Complete!")
-	
+
 	gui.mainloop()
