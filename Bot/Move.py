@@ -52,6 +52,21 @@ class Move:
 			speed += 0.5
 		return speed
 
+	def turn(self,angle):
+		self.movement.setMotorSpeed(pins.SERVO_RIGHT_MOTOR, 50)
+		self.movement.setMotorSpeed(pins.SERVO_LEFT_MOTOR, -100)
+		time1 = 0.9
+		if angle == 15:
+			time1 = 0.11
+		if angle == 90:
+			time1 = 0.84
+		else:
+			a = angle % 360
+			time1 = a * 0.11
+		time.sleep(time1)
+		self.stop()
+
+
 	def forward(self, speed = 100):
 		'''
 		self.left.set_normalized(1.0)
@@ -61,7 +76,7 @@ class Move:
 		'''
 		self.movement.setMotorSpeed(pins.SERVO_LEFT_MOTOR,100)
 		time.sleep(0.01)
-		self.movement.setMotorSpeed(pins.SERVO_RIGHT_MOTOR, 50)
+		self.movement.setMotorSpeed(pins.SERVO_RIGHT_MOTOR, 49)
 
 
 	def move(self,distance):
@@ -79,7 +94,7 @@ class Move:
 
 		elif (result =="GOOD"):
 			self.forward(100)
-			time.sleep(distance/13.8)
+			time.sleep(distance/14.8)
 		#	return status
 		#account for the 5 degrees a second/ every 12 cm of curvature to the left
 		distanceMoved = cmAwayFromWall - self.sensor.getDistance()
@@ -98,7 +113,7 @@ class Move:
 			time.sleep(spinTime)
 			self.movement.stop()
 
-	def turn(self,angle):
+	def turnMe(self,angle):
 		
 		# 90 degrees of rotation comes to approx 0.66 seconds, 2 seconds = 270* of rotation on a smooth surface
 		angle = float(angle)
@@ -109,17 +124,13 @@ class Move:
 			direction = 'left'
 		angle = abs(angle)
 
-	
+
 		if angle == 15:
-			self.timeSpin = 0.0038
-		elif angle == 5:
-			self.timeSpin = 0.0032
-		elif angle == 45:
-			self.timeSpin = 0.00455
+			self.timeSpin = 0.0067
 		elif angle == 90 or angle == -90:
-			self.timeSpin = 0.005
+			self.timeSpin = 0.0083
 		else:
-			self.timeSpin = 0.005
+			self.timeSpin = 0.0067
 
 
 		print self.timeSpin
@@ -144,8 +155,6 @@ if __name__ == "__main__":
 	bot.stop()
 	print bot.sensor.getDistance()
 
-	'''
-
 	while(s !='s'):
 		s = raw_input("Distance: ")
 		speed = raw_input("Speed (0.0 -1.0: ")
@@ -161,11 +170,11 @@ if __name__ == "__main__":
 
 	
 	bot.movement.stop()
-	'''
+	
 	
 	count = 0
 	
-
+	
 	bot.timeSpin = 0.005
 	
 
@@ -179,11 +188,33 @@ if __name__ == "__main__":
 
 		print "Time: ", bot.timeSpin
 		count = 0
-		while count < 4:
-			bot.turn(90)
+		while count < 12:
+			bot.turn(15)
 			time.sleep(1)
 			count += 1
 
 	bot.movement.stop()
+
 	'''
+	#0.97 for 105
+	#0.84 for 90
+	#0.11 for 15
+
+	
+	while(s !='s'):
+		s = raw_input("Speed: ")
+		if s == 's':
+			break
+		t = raw_input("Time (0.0 -1.0: ")
+		count = 0
+		total = int(raw_input("Turn number: "))
+
+		s = float(s)
+		t = float(t)
+
+		while count < total:
+			bot.turnMe(s,t)
+			count += 1
+			time.sleep(1)
+
 	
