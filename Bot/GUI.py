@@ -602,6 +602,11 @@ class GUI(Tk):
 		mapWidth = float(len(data))
 		mapHeight = float(len(data[0]))
 		
+		if mapWidth > mapHeight:
+			mapHeight = mapWidth
+		else:
+			mapWidth = mapHeight
+		
 		#Copy data in case final map
 		currentData = data[:]
 		gui.clearMap()
@@ -699,6 +704,8 @@ if __name__ == "__main__":
 		#map = readTestFile("sampleMap03.txt")
 		#map = readTestFile("sampleMap04.txt")
 		#map = readTestFile("sampleMap05.txt")
+		#map = readTestFile("sampleMap06.txt")
+		#map = readTestFile("sampleMap07.txt")
 		gui.drawOnMap(map)
 		
 		gui.displayMessage("Mapping Complete!")
