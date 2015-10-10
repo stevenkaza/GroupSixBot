@@ -602,6 +602,11 @@ class GUI(Tk):
 		mapWidth = float(len(data))
 		mapHeight = float(len(data[0]))
 		
+		if mapWidth > mapHeight:
+			mapHeight = mapWidth
+		else:
+			mapWidth = mapHeight
+		
 		#Copy data in case final map
 		currentData = data[:]
 		gui.clearMap()
@@ -674,9 +679,7 @@ if __name__ == "__main__":
 	gui = GUI(port = 13000,queue = q)
 	""" # Uncomment
 	sh = SocketHelper(port = port)
-
 	gui.textBox.bind('<Destroy>', lambda x: (running.pop(), x.widget.destroy()))
-
 	thread = threading.Thread(target = display, args = (q, running, sh, gui))
 	thread.setDaemon(True)
 	thread.start()
@@ -701,6 +704,8 @@ if __name__ == "__main__":
 		#map = readTestFile("sampleMap03.txt")
 		#map = readTestFile("sampleMap04.txt")
 		#map = readTestFile("sampleMap05.txt")
+		#map = readTestFile("sampleMap06.txt")
+		#map = readTestFile("sampleMap07.txt")
 		gui.drawOnMap(map)
 		
 		gui.displayMessage("Mapping Complete!")
