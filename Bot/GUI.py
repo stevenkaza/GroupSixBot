@@ -18,11 +18,11 @@ from Map import *
 import Queue
 from ProcessRoom import *
 
-windowWidth = 675
-windowHeight = 550
+windowWidth = 875
+windowHeight = 750
 
-canvasWidth = 450.0
-canvasHeight = 450.0
+canvasWidth = 650.0
+canvasHeight = 650.0
 
 mapWidth = 500.0
 mapHeight = 500.0
