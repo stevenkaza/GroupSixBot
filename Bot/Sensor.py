@@ -64,14 +64,17 @@ class Sensor:
 
 		return listS
 
+	#reads from either the right or left sensor.
+	#'r' == right
+	#'l' == left
+	#
 	def getSensor(self, side = 'r'):
 
 		self.ser.flushInput()
 		self.ser.write(side)
-		dist = self.ser.readline(),
+		dist = self.ser.readline()
 
-		return dist
-
+		return dist 
 
 	def getDistance(self):
 
@@ -82,18 +85,7 @@ class Sensor:
 
 		listSense = self.removeOutLiers(listSense)
 
-		dist = float(sum(listSense))/float(len(listSense))
-
-		if self.angle == 0:
-			self.top = dist
-		if self.angle == 90:
-			self.right = dist
-		if self.angle == 180:
-			self.bottom = dist
-		if self.angle == 270:
-			self.left = dist
-
-		self.angle += 15
+		dist = float(sum(listSense))/8.0
 
 		return dist
 

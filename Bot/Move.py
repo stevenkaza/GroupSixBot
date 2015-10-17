@@ -149,9 +149,12 @@ class Move:
 		while True:
 			try:
 				r = self.sensor.getSensor('r')
-				ri = int(r[0].strip('\r\n'))
+				ri = int(r.strip('\r\n'))
 				l = self.sensor.getSensor('l')
-				le = int(l[0].strip('\r\n'))
+				le = int(l.strip('\r\n'))
+
+				print ri,le
+				raw_input("waitin ")
 
 				if ri + le + 8 > 25:
 					self.movement.stop()
