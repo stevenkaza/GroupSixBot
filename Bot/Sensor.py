@@ -4,6 +4,7 @@ from ImageProcess import *
 import subprocess, signal
 import os
 import shlex
+import serial
 
 class Sensor:
 
@@ -16,13 +17,26 @@ class Sensor:
 			out,err = p.communicate()
 			pid = int(out.strip('\n'))
 			os.kill(pid,signal.SIGKILL)
+			try:
+				self.camera = PiCamera(resolution = (512,320))
+				self.camera.hflip = True
+				self.camera.vflip = True
+			except:
+				pass
 			print "Camera killed"
 		except:
 			print "Camera already dead"
 
-	#	self.camera = PiCamera(resolution = (512,320))
-	#	self.camera.hflip = True
-	#	self.camera.vflip = True
+		#need to fix this
+		try:
+			self.ser = serial.Serial(port = '/dev/ttyUSB0',baudrate = 9600,timeout = 1)
+		except Exception as e:
+			print e
+			self.ser = serial.Serial(port = '/dev/ttyUSB1',baudrate = 9600,timeout = 1)
+
+
+
+		
 		self.angle = 0
 		self.top = 0
 		self.bottom = 0
@@ -49,6 +63,15 @@ class Sensor:
 		listS.remove(high)
 
 		return listS
+
+	def getSensor(self, side = 'r'):
+
+		self.ser.flushInput()
+		self.ser.write(side)
+		dist = self.ser.readline(),
+
+		return dist
+
 
 	def getDistance(self):
 
@@ -118,6 +141,13 @@ if __name__ == "__main__":
 
 	s = Sensor()
 	i = ImageProcess('black1.jpeg')
-	raw_input("Start")
-	s.takePicture(i.name, i.extention)
-	print s.isWall(i.process(i.name, i.extention))
+	inp = raw_input("Start: ")
+
+	count = 0
+
+	while inp != 's':
+		inp = raw_input("Take picture or (s)top: ")
+		if inp == 's':
+			break
+		s.takePicture("pic" + str(count))
+		count += 1

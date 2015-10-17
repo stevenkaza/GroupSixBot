@@ -39,7 +39,7 @@ class ComTest:
 			self.com.sendBotLocation((4,4,90))
 		elif command == "data":			
 			while 1:
-				m = (14,0,17,0)
+				m = (40,40,17,1)
 				'''
 				m.append([1,1,1,1,1,1,1,1,1])
 				m.append([1,0,0,0,0,0,0,0,1])
