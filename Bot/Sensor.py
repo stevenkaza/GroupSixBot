@@ -34,8 +34,6 @@ class Sensor:
 			print e
 			self.ser = serial.Serial(port = '/dev/ttyUSB1',baudrate = 9600,timeout = 1)
 
-
-
 		
 		self.angle = 0
 		self.top = 0
@@ -74,18 +72,18 @@ class Sensor:
 		self.ser.write(side)
 		dist = self.ser.readline()
 
-		return dist 
+		return int(dist.strip('\r\n'))
 
 	def getDistance(self):
 
 		listSense = []
 
-		for i in range(10):
+		for i in range(50):
 			listSense.append(self.us.read_normalized())
 
 		listSense = self.removeOutLiers(listSense)
 
-		dist = float(sum(listSense))/8.0
+		dist = float(sum(listSense))/48.0
 
 		return dist
 
@@ -129,8 +127,7 @@ class Sensor:
 
 		return room
 
-if __name__ == "__main__":
-
+def testCamera():
 	s = Sensor()
 	i = ImageProcess('black1.jpeg')
 	inp = raw_input("Start: ")
@@ -143,3 +140,14 @@ if __name__ == "__main__":
 			break
 		s.takePicture("pic" + str(count))
 		count += 1
+
+if __name__ == "__main__":
+
+	s = Sensor()
+
+	i = 'a'
+
+	while i != 's':
+		i = raw_input("Sense: ")
+		print s.getDistance()
+

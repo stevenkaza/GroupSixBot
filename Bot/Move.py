@@ -142,6 +142,7 @@ class Move:
 	def scanHallway(self):
 		
 		start = self.sensor.getDistance()
+		print start
 		t1 = time.time()
 
 		self.forward()
@@ -149,23 +150,26 @@ class Move:
 		while True:
 			try:
 				r = self.sensor.getSensor('r')
-				ri = int(r.strip('\r\n'))
 				l = self.sensor.getSensor('l')
-				le = int(l.strip('\r\n'))
 
-				print ri,le
-				raw_input("waitin ")
-
-				if ri + le + 8 > 25:
+				if r + l + 8 > 25:
 					self.movement.stop()
 					break
 			except Exception as e:
-				pass
+				print e
 
 		t2 = time.time()
 		end = self.sensor.getDistance()
 
-		return (start - end, t2 - t1)
+		distanceMoved = 0
+
+		if start >= 100:
+			distanceMoved = (t2-t1) * 14.6
+		else:
+			distanceMoved = start - end
+
+		print end
+		return (distanceMoved, (t2-t1) * 14.6)
 
 	def stop(self):
 		self.left.set_normalized(-1)
@@ -186,6 +190,7 @@ def moveOneSecond(t = 1):
 	print start - end
 
 def moveTest():
+
 	while(s !='s'):
 		s = raw_input("Distance: ")
 		speed = raw_input("Speed (0.0 -1.0): ")
@@ -239,9 +244,9 @@ def turnTest():
 
 if __name__ == "__main__":
 	
-	#bot = Move()
+	bot = Move()
 
 	s = raw_input("Start: ")
-	moveOneSecond()
-	#print bot.scanHallway()
+	#moveOneSecond()
+	print bot.scanHallway()
 	
