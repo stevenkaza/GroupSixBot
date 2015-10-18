@@ -1,6 +1,7 @@
 import sys
 
 from PIL import Image
+import numpy
 
 class ImageProcess:
 
@@ -21,7 +22,7 @@ class ImageProcess:
 		This just test for one colour: Black, anything that isn't black (define as a y value less than 5) is white (for now)
 
 		'''
-		
+
 		for i in im.getdata():
 			if i[1] < self.blackValue:
 				black += 1
