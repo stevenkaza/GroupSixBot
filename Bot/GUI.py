@@ -14,7 +14,7 @@ import os
 import os.path
 from socket import * 
 import sys
-from Map import * 
+from Map import *
 import Queue
 from ProcessRoom import *
 
@@ -30,6 +30,10 @@ mapHeight = 500.0
 mapOffset = 25
 
 currentData = [[]]
+
+wallColour = 'black';
+doorColour = 'green';
+windowColour = 'blue';
 
 """
 Debug Code
@@ -94,7 +98,11 @@ def saveTextLog(self):
 	file.close()
 
 def aboutRoomMapper():
-	tkMessageBox.showinfo("About Room Mapper", "Room Mapper Beta V 1.0 \n\nTeam: \nKory Bryson - Communications Lead, \nMitchell Cook - AI Lead, \nSteven Kazavchinski - Movement and Sensor Lead, \nZack Licastro - UI Co-Lead, \nAmanda Reuillon - UI Co-Lead \n\n A tool to visualize room mapper from a Pi Bot room mapper.")
+	tkMessageBox.showinfo("About Room Mapper", "Room Mapper Beta V 1.1 \n\nTeam: \nKory Bryson - Communications Lead, \nMitchell Cook - AI Lead, \nSteven Kazavchinski - Movement and Sensor Lead, \nZack Licastro - UI Co-Lead, Documentation Co-Lead, \nAmanda Reuillon - UI Co-Lead, Documentation Co-Lead \n\n A tool to visualize room mapper from a Pi Bot room mapper.")
+
+def howToReadMapper():
+	tkMessageBox.showinfo("How to Read Room Mapper", "How to Read The Maps \n\n During mapping, points will show the most up to date data for the map. \n\n Once mapped, the map will be drawn with lines, and measurements will be put in the center of the lines they represent. \n\n Black represents walls, Green represents doors, and Blue represents windows.")
+	
 	
 #Set Up Menu
 def mainMenu(r):
@@ -105,8 +113,6 @@ def mainMenu(r):
 
 	#File
 	fileMenu = Menu(m, tearoff=0)
-	#fileMenu.add("command", label="Save Map", command = saveMap, state = DISABLED)
-	#fileMenu.add("command", label="Save As", command = saveFileAs, state = DISABLED)
 	
 	fileMenu.add("command", label="Save Map for Comparison", command = lambda: saveMapComparison(r))
 	fileMenu.add("command", label="Save Map to PostScript", command = lambda: saveMap(r))
@@ -116,6 +122,7 @@ def mainMenu(r):
 	#Help
 	helpMenu = Menu(m, tearoff = 0)
 	helpMenu.add("command", label = "About", command = aboutRoomMapper)
+	helpMenu.add("command", label = "How to read Mapper", command = howToReadMapper)
 	
 
 	m.add("cascade", menu = fileMenu, label = "File")
@@ -140,7 +147,7 @@ def drawPoint(self, data, colour):
 		outline='black', fill=colour))
 
 #Data is (x0, y0, x1, y1)
-def drawLine(self, data):
+def drawLine(self, data, colour):
 
 	startPoint = (data[0], data[1])
 	endPoint = (data[2], data[3])
@@ -152,7 +159,7 @@ def drawLine(self, data):
 	y0 = int(startPoint[1])
 	x1 = int(endPoint[0])
 	y1 = int(endPoint[1])
-	self.walls.append(self.canvas.create_line(x0,y0,x1,y1))
+	self.walls.append(self.canvas.create_line(x0,y0,x1,y1, fill=colour))
 
 def setupBotIcon(self, data):
 	data = worldSpaceToCanvasSpace(data)
@@ -322,7 +329,7 @@ class GUI(Tk):
 
 		pr = ProcessRoom()
 
-		room = self.currentRoom
+		room = pr.openFile("./rooms/rooms2")
 
 		roomList = ""
 
@@ -352,45 +359,66 @@ class GUI(Tk):
 	
 	#Checks if a point is a part of a wall, or is a lose point
 	# Returns True if has neighbour points, false if isolated
-	def neighbourWall(self, row, column):
+	def neighbourWall(self, row, column, type):
 		if column < len(currentData[0]) - 1:
-			if currentData[row][column + 1] == 1:
+			if currentData[row][column + 1] == type:
 				return True
 		if column > 0:
-			if currentData[row][column - 1] == 1:
+			if currentData[row][column - 1] == type:
 				return True
 		if row < len(currentData) - 1:
-			if currentData[row + 1][column] == 1:
+			if currentData[row + 1][column] == type:
 				return True
 		if row > 0:
-			if currentData[row - 1][column] == 1:
+			if currentData[row - 1][column] == type:
 				return True
 		
 		return False
 	
 	#Returns true if diagonal wall
-	def checkDiagonals(self, row, column):
+	def checkDiagonals(self, row, column, type):
 		if column < len(currentData[0]) - 1 and row < len(currentData) - 1:
-			if currentData[row + 1][column + 1] == 1:
+			if currentData[row + 1][column + 1] == type:
 				return True
 		if column > 0 and row > 0:
-			if currentData[row - 1][column - 1] == 1:
+			if currentData[row - 1][column - 1] == type:
 				return True
 		if column < len(currentData[0]) - 1 and row > 0:
-			if currentData[row - 1][column + 1] == 1:
+			if currentData[row - 1][column + 1] == type:
 				return True
 		if column > 0 and row < len(currentData) - 1:
-			if currentData[row + 1][column - 1] == 1:
+			if currentData[row + 1][column - 1] == type:
 				return True
 				
 		return False
 	
-	def drawWall(self, wallStart, wallEnd, length):
+	def drawWall(self, wallStart, wallEnd, length, type):
 		labelPos = ((wallStart[0] + wallEnd[0]) / 2.0, (wallStart[1] + wallEnd[1]) / 2.0)
-		mapText(gui, labelPos, str(length) + "cm", 'black')
-		drawLine(self, (wallStart[0], wallStart[1], wallEnd[0], wallEnd[1]))
+		
+		if type == 1:
+			mapText(gui, labelPos, str(length) + "cm", wallColour)
+			drawLine(self, (wallStart[0], wallStart[1], wallEnd[0], wallEnd[1]), wallColour)
+			
+			#Adding Vertices
+			drawPoint(self, wallStart, wallColour)
+			drawPoint(self, wallEnd, wallColour)
+		elif type == 2:
+			mapText(gui, labelPos, str(length) + "cm", doorColour)
+			drawLine(self, (wallStart[0], wallStart[1], wallEnd[0], wallEnd[1]), doorColour)
+			
+			#Adding Vertices
+			drawPoint(self, wallStart, doorColour)
+			drawPoint(self, wallEnd, doorColour)
+		elif type == 3:
+			mapText(gui, labelPos, str(length) + "cm", windowColour)
+			drawLine(self, (wallStart[0], wallStart[1], wallEnd[0], wallEnd[1]), windowColour)
+			
+			#Adding Vertices
+			drawPoint(self, wallStart, windowColour)
+			drawPoint(self, wallEnd, windowColour)
+		
 	
-	def drawDiagonalWall(self, row, column):
+	def drawDiagonalWall(self, row, column, type):
 		startPos = (row, column)
 		direction = (0, 0)
 		
@@ -398,9 +426,9 @@ class GUI(Tk):
 		length = 1
 		
 		if column < len(currentData[0]) - 1 and row < len(currentData) - 1:
-			if currentData[row + 1][column + 1] == 1 and gui.neighbourWall(row + 1, column + 1) == False:
+			if currentData[row + 1][column + 1] == type and gui.neighbourWall(row + 1, column + 1, type) == False:
 				direction = (1, 1)
-				while currentData[row + direction[0]][column + direction[1]] == 1 and gui.neighbourWall(row + direction[0], column + direction[1]) == False:
+				while currentData[row + direction[0]][column + direction[1]] == type and gui.neighbourWall(row + direction[0], column + direction[1], type) == False:
 					row = row + direction[0]
 					column = column + direction[1]
 					length += 1
@@ -415,9 +443,9 @@ class GUI(Tk):
 		length = 1
 		
 		if column > 0 and row > 0:
-			if currentData[row - 1][column - 1] == 1 and gui.neighbourWall(row - 1, column - 1) == False:
+			if currentData[row - 1][column - 1] == type and gui.neighbourWall(row - 1, column - 1, type) == False:
 				direction = (-1, -1)
-				while currentData[row + direction[0]][column + direction[1]] == 1 and gui.neighbourWall(row + direction[0], column + direction[1]) == False:
+				while currentData[row + direction[0]][column + direction[1]] == type and gui.neighbourWall(row + direction[0], column + direction[1], type) == False:
 					row = row + direction[0]
 					column = column + direction[1]
 					length += 1
@@ -432,10 +460,10 @@ class GUI(Tk):
 		length = 1
 		
 		
-		if column < len(currentData[0]) - 1 and row > 0 and gui.neighbourWall(row - 1, column + 1) == False:
-			if currentData[row - 1][column + 1] == 1:
+		if column < len(currentData[0]) - 1 and row > 0 and gui.neighbourWall(row - 1, column + 1, type) == False:
+			if currentData[row - 1][column + 1] == type:
 				direction = (-1, 1)
-				while currentData[row + direction[0]][column + direction[1]] == 1 and gui.neighbourWall(row + direction[0], column + direction[1]) == False:
+				while currentData[row + direction[0]][column + direction[1]] == type and gui.neighbourWall(row + direction[0], column + direction[1], type) == False:
 					row = row + direction[0]
 					column = column + direction[1]
 					length += 1
@@ -449,10 +477,10 @@ class GUI(Tk):
 			longestLength = length
 		length = 1
 		
-		if column > 0 and row < len(currentData) - 1 and gui.neighbourWall(row + 1, column - 1) == False:
-			if currentData[row + 1][column - 1] == 1:
+		if column > 0 and row < len(currentData) - 1 and gui.neighbourWall(row + 1, column - 1, type) == False:
+			if currentData[row + 1][column - 1] == type:
 				direction = (1, -1)
-				while currentData[row + direction[0]][column + direction[1]] == 1 and gui.neighbourWall(row + direction[0], column + direction[1]) == False:
+				while currentData[row + direction[0]][column + direction[1]] == type and gui.neighbourWall(row + direction[0], column + direction[1], type) == False:
 					row = row + direction[0]
 					column = column + direction[1]
 					length += 1
@@ -465,9 +493,9 @@ class GUI(Tk):
 			endPos = (row, column)
 			longestLength = length
 			
-		gui.drawWall(startPos, endPos, longestLength)
+		gui.drawWall(startPos, endPos, longestLength, type)
 		
-	def drawHorizontalWalls(self):
+	def drawHorizontalWalls(self, type):
 		row = 0
 		column = 0
 		wall = False
@@ -482,7 +510,7 @@ class GUI(Tk):
 		for j in range(0, len(currentData[0])):
 			for i in range(0, len(currentData) - 1):
 				entry = currentData[i][j]
-				if entry == 1:
+				if entry == type:
 					length += 1
 					if wall == False:
 						wall = True
@@ -492,12 +520,12 @@ class GUI(Tk):
 						wall = False
 						if length > 1:
 							wallEnd = (row, column)
-							gui.drawWall(wallStart, wallEnd, length)
-						elif gui.neighbourWall(row - 1, column) == False: #If Not a solid wall, check for diagonals
-							if gui.checkDiagonals(row - 1, column) == False: #If not a diagonal wall, mark point
+							gui.drawWall(wallStart, wallEnd, length, type)
+						elif gui.neighbourWall(row - 1, column, type) == False: #If Not a solid wall, check for diagonals
+							if gui.checkDiagonals(row - 1, column, type) == False: #If not a diagonal wall, mark point
 								drawPoint(self, wallStart, 'black')
 							else:
-								gui.drawDiagonalWall(row - 1, column)
+								gui.drawDiagonalWall(row - 1, column, type)
 					length = 0
 				row += 1				
 			#If Wall goes to final column
@@ -506,18 +534,18 @@ class GUI(Tk):
 				wall = False
 				if length > 1:
 					wallEnd = (row, column)
-					gui.drawWall(wallStart, wallEnd, length)
-				elif gui.neighbourWall(row, column) == False: #If Not a solid wall, check for diagonals
-					if gui.checkDiagonals(row, column) == False: #If not a diagonal wall, mark point
+					gui.drawWall(wallStart, wallEnd, length, type)
+				elif gui.neighbourWall(row, column, type) == False: #If Not a solid wall, check for diagonals
+					if gui.checkDiagonals(row, column, type) == False: #If not a diagonal wall, mark point
 						drawPoint(self, wallStart, 'black')
 					else:
-						gui.drawDiagonalWall(row, column)
+						gui.drawDiagonalWall(row, column, type)
 					
 			length = 0
 			row = 0
 			column += 1
 		
-	def drawVerticalWalls(self):
+	def drawVerticalWalls(self, type):
 		row = 0
 		column = 0
 		wall = False
@@ -528,7 +556,7 @@ class GUI(Tk):
 		#Vertical Walls
 		for dataRow in currentData:
 			for entry in dataRow:	
-				if entry == 1:
+				if entry == type:
 					length += 1
 					if wall == False:
 						wall = True
@@ -538,12 +566,12 @@ class GUI(Tk):
 						wall = False
 						if length > 1:
 							wallEnd = (row, column)
-							gui.drawWall(wallStart, wallEnd, length)
-						elif gui.neighbourWall(row, column - 1) == False: #If Not a solid wall, check for diagonals
-							if gui.checkDiagonals(row, column - 1) == False: #If not a diagonal wall, mark point
+							gui.drawWall(wallStart, wallEnd, length, type)
+						elif gui.neighbourWall(row, column - 1, type) == False: #If Not a solid wall, check for diagonals
+							if gui.checkDiagonals(row, column - 1, type) == False: #If not a diagonal wall, mark point
 								drawPoint(self, wallStart, 'black')
 							else:
-								gui.drawDiagonalWall(row, column - 1)
+								gui.drawDiagonalWall(row, column - 1, type)
 						
 					length = 0
 				column += 1
@@ -554,12 +582,12 @@ class GUI(Tk):
 				wall = False
 				if length > 1:
 					wallEnd = (row, column)
-					gui.drawWall(wallStart, wallEnd, length)
-				elif gui.neighbourWall(row, column) == False: #If Not a solid wall, check for diagonals
-					if gui.checkDiagonals(row, column) == False: #If not a diagonal wall, mark point
+					gui.drawWall(wallStart, wallEnd, length, type)
+				elif gui.neighbourWall(row, column, type) == False: #If Not a solid wall, check for diagonals
+					if gui.checkDiagonals(row, column, type) == False: #If not a diagonal wall, mark point
 						drawPoint(self, wallStart, 'black')
 					else:
-						gui.drawDiagonalWall(row, column)
+						gui.drawDiagonalWall(row, column, type)
 			length = 0
 			row += 1
 			column = 0
@@ -571,23 +599,38 @@ class GUI(Tk):
 		gui.clearMap()
 		print "Process Map"
 		
-		gui.drawHorizontalWalls()
-		gui.drawVerticalWalls()
+		#Check Walls
+		gui.drawHorizontalWalls(1)
+		gui.drawVerticalWalls(1)
+		
+		#Check Doors
+		gui.drawHorizontalWalls(2)
+		gui.drawVerticalWalls(2)
+		
+		#Check Windows
+		gui.drawHorizontalWalls(3)
+		gui.drawVerticalWalls(3)
 		
 		
 	#Map Data Legend
 	# 0 -> Empty
 	# 1 -> Wall
+	# 2 -> Door
+	# 3 -> Window
 	# 8 -> Robot
 	# 9 -> Unreachable Space	
 	
 	def mapPoints(self, row, column, entry):		
 		if (entry == 1):
-			drawPoint(self, (row, column), 'blue')
+			drawPoint(self, (row, column), wallColour)
+		elif (entry == 2):
+			drawPoint(self, (row, column), doorColour)
+		elif (entry == 3):
+			drawPoint(self, (row, column), windowColour)
 		elif (entry == 8):
-			drawPoint(self, (row, column), 'green')
+			drawPoint(self, (row, column), 'purple')
 		elif (entry == 9):
-			drawPoint(self, (row, column), 'black')
+			drawPoint(self, (row, column), 'red')
 	
 	"""
 		Functions called by AI
@@ -684,7 +727,6 @@ if __name__ == "__main__":
 	thread.setDaemon(True)
 	thread.start()
 
-
 	setupMapping(gui)
 	setupBotIcon(gui, (mapWidth / 2.0, mapHeight / 2.0))
 	setupBotAngle(gui, 0)
@@ -693,7 +735,7 @@ if __name__ == "__main__":
 	isTesting = False
 
 	if isTesting == True:
-		drawLine(gui, (0, 0, 50, 50))
+		drawLine(gui, (0, 0, 50, 50), wallColour)
 		drawPoint(gui, (50, 50), 'blue')
 		gui.displayMessage("Test")
 		updateBotPos(gui, (250, 250))
