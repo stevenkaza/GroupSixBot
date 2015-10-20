@@ -17,6 +17,9 @@ class ImageProcess:
 		im = Image.open(name)
 		white = 0
 		black = 0
+		#converting to grayscale using opencv
+		img = cv2.imread(name,0)
+
 
 		'''
 		This just test for one colour: Black, anything that isn't black (define as a y value less than 5) is white (for now)
