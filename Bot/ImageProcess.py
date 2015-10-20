@@ -19,6 +19,10 @@ class ImageProcess:
 		im = Image.open(name)
 		white = 0
 		black = 0
+		xMiddleLeft = 0
+		xMiddleRight =0
+		yMiddleBottom = 0
+		yMiddleTop = 0
 		#converting to grayscale using opencv
 
 		im=im.convert('L') #makes it greyscale
@@ -29,6 +33,14 @@ class ImageProcess:
 
 		im = Image.open('out.jpg')
 		i = im.load()
+		width  = im.size[0]
+		height = im.size[1]
+		# getting the middle points for x
+		xMiddleLeft = int(width*0.4)
+		xMiddleRight = int(width*0.6)
+		yMiddleTop = int(height*0.6)
+		yMiddleBottom = int(height*0.4)
+
 
 		print im.size[0]
 		print im.size[1]
@@ -45,11 +57,9 @@ class ImageProcess:
 				# we assume white everything that is not black:
 				white += 1
 			#we know we are in the middle here, and if the pixels in the middle are white, the window is in the middle
-			#instead of these contants here going to change that so they equal 10% of the size of the width depending on the image ,
-			# this is the case if the image is 512 widths
-				if (x > 204) and (x<307):
+				if (x > xMiddleLeft) and (x<xMiddleRight):
 					middleCount = middleCount +1
-					if (x > 0) and (x < 204):
+					if (x > xMiddleLeft) and (x < xMiddleRight):
 				# lets also make sure there are no white pixles in the right side of the image
 						leftCount = leftCount + 1
 		if middleCount > 100:
