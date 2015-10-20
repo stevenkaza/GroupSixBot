@@ -2,6 +2,8 @@ import sys
 
 from PIL import Image
 import numpy as np
+import png
+
 
 class ImageProcess:
 
@@ -25,13 +27,20 @@ class ImageProcess:
 		w=Image.fromarray(y,mode='L')
 		w.save('out.jpg')
 
-		'''
-		This just test for one colour: Black, anything that isn't black (define as a y value less than 5) is white (for now)
+		point = (2, 10) # coordinates of pixel to be painted red
+		im = Image.open('out.jpg')
+		i = im.load()
 
 
-		for i in im.getdata():
-			if i[1] < self.blackValue:
-				black += 1
+
+
+		#This just test for one colour: Black, anything that isn't black (define as a y value less than 5) is white (for now)
+
+
+		for x in range(0,512):
+		#	print i[x,100]
+			if i[x,100] < 20:
+				black +=1
 			else:
 				# we assume white everything that is not black:
 				white += 1
@@ -39,6 +48,7 @@ class ImageProcess:
 		#print im.getcolors()
 		print "Size: ",im.size[0],im.size[1],"White: ",white,"Black: ",black
 		return {'white':white, 'black' : black}
-		'''
+
+
 ip = ImageProcess()
 ip.process()
