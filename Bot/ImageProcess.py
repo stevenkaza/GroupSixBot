@@ -27,10 +27,8 @@ class ImageProcess:
 		w=Image.fromarray(y,mode='L')
 		w.save('out.jpg')
 
-		point = (2, 10) # coordinates of pixel to be painted red
 		im = Image.open('out.jpg')
 		i = im.load()
-
 
 		print im.size[0]
 		print im.size[1]
@@ -47,12 +45,13 @@ class ImageProcess:
 				# we assume white everything that is not black:
 				white += 1
 			#we know we are in the middle here, and if the pixels in the middle are white, the window is in the middle
-			#instead of these contants here going to change that so they equal 10% of the size of the width depending on the image 
-			if (x > 204) and (x<307):
-				middleCount = middleCount +1
-			if (x > 0) and (x < 204):
+			#instead of these contants here going to change that so they equal 10% of the size of the width depending on the image ,
+			# this is the case if the image is 512 widths
+				if (x > 204) and (x<307):
+					middleCount = middleCount +1
+					if (x > 0) and (x < 204):
 				# lets also make sure there are no white pixles in the right side of the image
-				leftCount = leftCount + 1
+						leftCount = leftCount + 1
 		if middleCount > 100:
 			print "window in the middle"
 
