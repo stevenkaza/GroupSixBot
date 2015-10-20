@@ -13,7 +13,13 @@ class ImageProcess:
 		self.name = splitName[0]
 		self.extention = splitName[1]
 		self.blackValue = 5
+	def grayScale(self,im):
 
+		im=im.convert('L') #makes it greyscale
+		y=np.asarray(im.getdata(),dtype=np.float64).reshape((im.size[1],im.size[0]))
+		y=np.asarray(y,dtype=np.uint8) #if values still in range 0-255!
+		w=Image.fromarray(y,mode='L')
+		w.save('grayScaled.jpg')
 	def process(self, name = "testPic.jpeg", extention = "jpeg"):
 
 		im = Image.open(name)
@@ -23,15 +29,11 @@ class ImageProcess:
 		xMiddleRight =0
 		yMiddleBottom = 0
 		yMiddleTop = 0
+		self.grayScale(im)
 		#converting to grayscale using opencv
 
-		im=im.convert('L') #makes it greyscale
-		y=np.asarray(im.getdata(),dtype=np.float64).reshape((im.size[1],im.size[0]))
-		y=np.asarray(y,dtype=np.uint8) #if values still in range 0-255!
-		w=Image.fromarray(y,mode='L')
-		w.save('out.jpg')
 
-		im = Image.open('out.jpg')
+		im = Image.open('grayScaled.jpg')
 		i = im.load()
 		width  = im.size[0]
 		height = im.size[1]
