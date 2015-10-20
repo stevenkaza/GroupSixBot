@@ -32,11 +32,13 @@ class ImageProcess:
 		i = im.load()
 
 
-
+		print im.size[0]
+		print im.size[1]
 
 		#This just test for one colour: Black, anything that isn't black (define as a y value less than 5) is white (for now)
 
-
+		middleCount =0
+		leftCount = 0
 		for x in range(0,512):
 		#	print i[x,100]
 			if i[x,100] < 20:
@@ -44,6 +46,16 @@ class ImageProcess:
 			else:
 				# we assume white everything that is not black:
 				white += 1
+			#we know we are in the middle here, and if the pixels in the middle are white, the window is in the middle
+			#instead of these contants here going to change that so they equal 10% of the size of the width depending on the image 
+			if (x > 204) and (x<307):
+				middleCount = middleCount +1
+			if (x > 0) and (x < 204):
+				# lets also make sure there are no white pixles in the right side of the image
+				leftCount = leftCount + 1
+		if middleCount > 100:
+			print "window in the middle"
+
 
 		#print im.getcolors()
 		print "Size: ",im.size[0],im.size[1],"White: ",white,"Black: ",black
