@@ -10,7 +10,7 @@ import datetime
 class Move:
 	TOO_CLOSE  = "Too Close";
 
-	def __init__(self, start = (0,0),leftSpeed = 100, rightSpeed = 50):
+	def __init__(self, start = (0,0),leftSpeed = 100, rightSpeed = 55, dps = 14.6):
 		
 		self.location = start
 		self.x = start[0]
@@ -18,6 +18,7 @@ class Move:
 
 		self.leftSpeed = leftSpeed
 		self.rightSpeed = rightSpeed
+		self.distancePerSecond = dps
 
 		self.left = Servo(pins.SERVO_LEFT_MOTOR)
 		self.right = Servo(pins.SERVO_RIGHT_MOTOR)
@@ -142,6 +143,7 @@ class Move:
 	def scanHallway(self):
 		
 		start = self.sensor.getDistance()
+		self.sensor.getSensor()
 		print start
 		t1 = time.time()
 
@@ -151,8 +153,9 @@ class Move:
 			try:
 				r = self.sensor.getSensor('r')
 				l = self.sensor.getSensor('l')
+				print r,l
 
-				if r + l + 8 > 25:
+				if r + l + 8 > 30:
 					self.movement.stop()
 					break
 			except Exception as e:
@@ -169,7 +172,40 @@ class Move:
 			distanceMoved = start - end
 
 		print end
-		return (distanceMoved, (t2-t1) * 14.6)
+		return (distanceMoved, (t2-t1) * self.distancePerSecond)
+
+	def findDoor(self, side = 'r', distance = 10):
+
+		start = self.sensor.getDistance()
+		self.sensor.getSensor()
+		print start
+		t1 = time.time()
+
+		self.forward()
+
+		while True:
+			try:
+				r = self.sensor.getSensor(side)
+				print r
+
+				if r  > 5 + distance: #if sensor reads a distance greater than 5 (a buffer) + distance its found the door
+					self.movement.stop()
+					break
+			except Exception as e:
+				print e
+
+		t2 = time.time()
+		end = self.sensor.getDistance()
+
+		distanceMoved = 0
+
+		if start >= 100:
+			distanceMoved = (t2-t1) * self.distancePerSecond
+		else:
+			distanceMoved = start - end
+
+		print end
+		return (distanceMoved, (t2-t1) * self.distancePerSecond)
 
 	def stop(self):
 		self.left.set_normalized(-1)
@@ -191,6 +227,8 @@ def moveOneSecond(t = 1):
 
 def moveTest():
 
+	bot = Move()
+	s = 'w'
 	while(s !='s'):
 		s = raw_input("Distance: ")
 		speed = raw_input("Speed (0.0 -1.0): ")
@@ -210,7 +248,8 @@ def turnTest():
 
 	count = 0
 	
-	
+	bot = Move()
+
 	bot.timeSpin = 0.005
 	
 
@@ -223,6 +262,7 @@ def turnTest():
 	#15 = 0.0395
 	
 	t = ''
+	s = " "
 
 	while(s !='s'):
 
@@ -232,21 +272,20 @@ def turnTest():
 			break
 		count = 0
 		total = int(raw_input("Turn number: "))
-
 		
 		t = float(t)
 
 		while count < total:
 			bot.timeSpin = t
-			bot.turn(s)
+			bot.turn(90)
 			count += 1
 			time.sleep(1)
 
 if __name__ == "__main__":
 	
-	bot = Move()
-
+	#bot = Move()
 	s = raw_input("Start: ")
-	#moveOneSecond()
-	print bot.scanHallway()
+	
+	turnTest()
+	#print bot.findDoor('l',9)
 	

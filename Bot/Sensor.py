@@ -32,7 +32,10 @@ class Sensor:
 			self.ser = serial.Serial(port = '/dev/ttyUSB0',baudrate = 9600,timeout = 1)
 		except Exception as e:
 			print e
-			self.ser = serial.Serial(port = '/dev/ttyUSB1',baudrate = 9600,timeout = 1)
+			try:
+				self.ser = serial.Serial(port = '/dev/ttyUSB1',baudrate = 9600,timeout = 1)
+			except:
+				self.ser = None
 
 		
 		self.angle = 0
@@ -71,8 +74,13 @@ class Sensor:
 		self.ser.flushInput()
 		self.ser.write(side)
 		dist = self.ser.readline()
+		d = 0
+		try:
+			d = int(dist.strip('\r\n'))
+		except:
+			d = None
 
-		return int(dist.strip('\r\n'))
+		return d
 
 	def getDistance(self):
 
@@ -149,5 +157,5 @@ if __name__ == "__main__":
 
 	while i != 's':
 		i = raw_input("Sense: ")
-		print s.getDistance()
+		print s.getSensor(i)
 
