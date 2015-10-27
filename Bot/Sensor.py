@@ -37,7 +37,6 @@ class Sensor:
 			except:
 				self.ser = None
 
-		
 		self.angle = 0
 		self.top = 0
 		self.bottom = 0
