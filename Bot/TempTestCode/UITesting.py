@@ -736,21 +736,46 @@ if __name__ == "__main__":
 	isTesting = True
 
 	if isTesting == True:
-		drawLine(gui, (0, 0, 50, 50), wallColour)
-		drawPoint(gui, (50, 50), 'blue')
-		gui.displayMessage("Test")
-		updateBotPos(gui, (250, 250))
-		updateBotAngle(gui, 90)
-		mapText(gui, (300, 300), "Test", 'blue')
-		map = readTestFile("sampleMap01.txt")
+		#drawLine(gui, (0, 0, 50, 50), wallColour)
+		#drawPoint(gui, (50, 50), 'blue')
+		gui.displayMessage("Demo Mode")
+		#updateBotPos(gui, (250, 250))
+		#updateBotAngle(gui, 90)
+		#mapText(gui, (300, 300), "Test", 'blue')
+		#map = readTestFile("sampleMap01.txt")
 		#map = readTestFile("sampleMap02.txt")
 		#map = readTestFile("sampleMap03.txt")
 		#map = readTestFile("sampleMap04.txt")
 		#map = readTestFile("sampleMap05.txt")
 		#map = readTestFile("sampleMap06.txt")
 		#map = readTestFile("sampleMap07.txt")
-		gui.drawOnMap(map)
 		
-		gui.displayMessage("Mapping Complete!")
+		#Demo
+		#1. Default (No Map), show GUI/About stuff
+		
+		#2. Simple grid comparing to mapped result
+		#map = readTestFile("demo/demo02SimpleMap.txt")
+		
+		#3. Show off lose points
+		#map = readTestFile("demo/demo03LoosePoints.txt")
+		
+		#4. Show off doors and windows
+		#map = readTestFile("demo/demo04DoorsWindows.txt")
+		
+		#5. Show unfinished map, then finished map, Also show off gaps
+		#and overlaps
+		#map = readTestFile("demo/demo05Unfinished.txt")
+		
+		####6. Show gap if not covered previously
+		#####map = readTestFile("demo/demo06Gap.txt")
+		
+		#7. Show diagonal map
+		#map = readTestFile("demo/demo07Diagonal.txt")
+		
+		#8. Show bisected map
+		#map = readTestFile("demo/demo08Bisected.txt")
+		
+		#gui.drawOnMap(map)
+		#gui.displayMessage("Mapping Complete!")
 
 	gui.mainloop()
