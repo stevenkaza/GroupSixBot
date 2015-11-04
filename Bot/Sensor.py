@@ -1,6 +1,6 @@
 from discovery_bot import Ultrasound
 from picamera import PiCamera
-from ImageProcess import *
+#from ImageProcess import *
 import subprocess, signal
 import os
 import shlex
@@ -75,7 +75,7 @@ class Sensor:
 		dist = self.ser.readline()
 		d = 0
 		try:
-			d = int(dist.strip('\r\n'))
+			d = float(dist.strip('\r\n'))
 		except:
 			d = None
 
@@ -87,6 +87,7 @@ class Sensor:
 
 		for i in range(50):
 			listSense.append(self.us.read_normalized())
+			#print listSense[i]
 
 		listSense = self.removeOutLiers(listSense)
 
@@ -134,9 +135,23 @@ class Sensor:
 
 		return room
 
-def testCamera():
-	s = Sensor()
-	i = ImageProcess('black1.jpeg')
+def get50Sides(s):
+
+	listRight = []
+	listLeft = []
+
+	for i in range(200):
+		r = s.getSensor('r')
+		listRight.append(r)
+		l = s.getSensor('l')
+		listLeft.append(l)
+		print l,",",r
+
+	print float(sum(listLeft))/50.0, float(sum(listRight))/50.0
+
+def testCamera(s):
+
+	#i = ImageProcess('black1.jpeg')
 	inp = raw_input("Start: ")
 
 	count = 0
@@ -154,7 +169,16 @@ if __name__ == "__main__":
 
 	i = 'a'
 
-	while i != 's':
-		i = raw_input("Sense: ")
-		print s.getSensor(i)
+	while i != 'q':
 
+		i = raw_input("(f)ront sensor, (s)ide sensor, (5)0 reads from side sensors, (p)ic, (q)uit: ")
+
+		if i == 's':
+			ss = raw_input("What side: ")
+			print s.getSensor(ss)
+		elif i == 'f':
+			print "Distance: ",s.getDistance()
+		elif i == '5':
+			get50Sides(s)
+		elif i == 'p':
+			testCamera(s)
