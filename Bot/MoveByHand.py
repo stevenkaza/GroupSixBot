@@ -22,6 +22,23 @@ class MoveByHand:
 
 		return distance
 
+	def scanHallway(self):
+		print "Move bot down the hallway"
+		s = raw_input("Press enter when done: ")
+		dis = raw_input("How far did it move (in cms): ")
+
+		return float(dist)
+
+	def findDoor(self, side = 'r', distance = 10):
+
+		print ("Side: ", side, " Distance: ", distance)
+
+		print "Please move bot until is reaches a door"
+
+		dis = raw_input("How far did it move (in cms): ")
+
+		return float(dis)
+
 if __name__ == "__main__":
 
 	bot = MoveByHand()
