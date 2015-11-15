@@ -7,7 +7,7 @@ import png
 
 class ImageProcess:
 
-	def __init__(self, name = 'testPic.jpeg'):
+	def __init__(self, name = 'pic0.jpeg'):
 
 		splitName = name.split('.')
 		self.name = splitName[0]
@@ -20,7 +20,7 @@ class ImageProcess:
 		y=np.asarray(y,dtype=np.uint8) #if values still in range 0-255!
 		w=Image.fromarray(y,mode='L')
 		w.save('grayScaled.jpg')
-	def process(self, name = "testPic.jpeg", extention = "jpeg"):
+	def process(self, name = "pic0.jpeg", extention = "jpeg"):
 
 		im = Image.open(name)
 		white = 0
@@ -31,7 +31,7 @@ class ImageProcess:
 		yMiddleTop = 0
 		self.grayScale(im)
 		#converting to grayscale using opencv
-
+'''
 
 		im = Image.open('grayScaled.jpg')
 		i = im.load()
@@ -52,7 +52,7 @@ class ImageProcess:
 		self.middleSearch(i,xMiddleRight,xMiddleLeft)
 		middleCount =0
 		leftCount = 0
-		'''
+
 		for x in range(0,width):
 		#	print i[x,100]
 			if i[x,yMiddle] < 20:
@@ -80,8 +80,9 @@ class ImageProcess:
 		print "Size: ",im.size[0],im.size[1],"White: ",white,"Black: ",black
 		return {'white':white, 'black' : black}
 '''
+'''
 		def middleSearch(self,im,xMiddleLeft,xMiddleRight,xMiddle):
-		'''	for x in range(0,width):
+		for x in range(0,width):
 			#	print i[x,100]
 				if i[x,yMiddle] < 20:
 					black +=1
