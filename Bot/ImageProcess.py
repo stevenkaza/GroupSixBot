@@ -13,6 +13,9 @@ class ImageProcess:
 		self.name = splitName[0]
 		self.extention = splitName[1]
 		self.blackValue = 5
+	def hasWindow(self,name = "grayScaled.jpeg"):
+		im = Image.open(name)
+		## code here to detremine that there is a window in this image 
 	def grayScale(self,im):
 
 		im=im.convert('L') #makes it greyscale
@@ -31,32 +34,9 @@ class ImageProcess:
 		yMiddleTop = 0
 		self.grayScale(im)
 		#converting to grayscale using opencv
+
+
 '''
-
-		im = Image.open('grayScaled.jpg')
-		i = im.load()
-		width  = im.size[0]
-		height = im.size[1]
-		# getting the middle points for x
-		xMiddleLeft = int(width*0.4)
-		xMiddleRight = int(width*0.6)
-		yMiddleTop = int(height*0.6)
-		yMiddleBottom = int(height*0.4)
-		yMiddle = int(height*0.5)
-
-
-		print im.size[0]
-		print im.size[1]
-
-		#This just test for one colour: Black, anything that isn't black (define as a y value less than 5) is white (for now)
-		self.middleSearch(i,xMiddleRight,xMiddleLeft)
-		middleCount =0
-		leftCount = 0
-<<<<<<< HEAD
-		'''
-=======
-
->>>>>>> 9a42aac04ea97ab8dc6d97445f9d02cd014d05a8
 		for x in range(0,width):
 		#	print i[x,100]
 			if i[x,yMiddle] < 20:
@@ -83,15 +63,14 @@ class ImageProcess:
 		#print im.getcolors()
 		print "Size: ",im.size[0],im.size[1],"White: ",white,"Black: ",black
 		return {'white':white, 'black' : black}
-'''
-<<<<<<< HEAD
+
+
 		def middleSearch(self,im,xMiddleLeft,xMiddleRight,xMiddle):
-		'''	for x in range(0,width):
-=======
-'''
+			for x in range(0,width)
+
 		def middleSearch(self,im,xMiddleLeft,xMiddleRight,xMiddle):
 		for x in range(0,width):
->>>>>>> 9a42aac04ea97ab8dc6d97445f9d02cd014d05a8
+
 			#	print i[x,100]
 				if i[x,yMiddle] < 20:
 					black +=1
