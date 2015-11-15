@@ -42,35 +42,52 @@ class ImageProcess:
 		xMiddleRight = int(width*0.6)
 		yMiddleTop = int(height*0.6)
 		yMiddleBottom = int(height*0.4)
+		yMiddle = int(height*0.5)
 
 
 		print im.size[0]
 		print im.size[1]
 
 		#This just test for one colour: Black, anything that isn't black (define as a y value less than 5) is white (for now)
-
+		self.middleSearch(i,xMiddleRight,xMiddleLeft)
 		middleCount =0
 		leftCount = 0
-		for x in range(0,512):
+		'''
+		for x in range(0,width):
 		#	print i[x,100]
-			if i[x,100] < 20:
+			if i[x,yMiddle] < 20:
 				black +=1
 			else:
 				# we assume white everything that is not black:
 				white += 1
 			#we know we are in the middle here, and if the pixels in the middle are white, the window is in the middle
+				#middle window check
 				if (x > xMiddleLeft) and (x<xMiddleRight):
 					middleCount = middleCount +1
-					if (x > xMiddleLeft) and (x < xMiddleRight):
+				#checking left side for window
+				if (x < xMiddleLeft)
 				# lets also make sure there are no white pixles in the right side of the image
-						leftCount = leftCount + 1
-		if middleCount > 100:
+					leftCount = leftcount + 1
+				if (x > xMiddleRight) # if we have white right pixels too, then our left count is invalid s
+					leftCount = leftCount  - 1
+
+		if middleCount >= (xMiddleRight-xMiddleLeft-2):
 			print "window in the middle"
+		elif
 
 
 		#print im.getcolors()
 		print "Size: ",im.size[0],im.size[1],"White: ",white,"Black: ",black
 		return {'white':white, 'black' : black}
+'''
+		def middleSearch(self,im,xMiddleLeft,xMiddleRight,xMiddle):
+		'''	for x in range(0,width):
+			#	print i[x,100]
+				if i[x,yMiddle] < 20:
+					black +=1
+				else:
+					white +=
+'''
 
 
 ip = ImageProcess()
