@@ -44,34 +44,7 @@ class ImageProcess:
 		#converting to grayscale using opencv
 
 
-		'''
-		for x in range(0,width):
-		#	print i[x,100]
-			if i[x,yMiddle] < 20:
-				black +=1
-			else:
-				# we assume white everything that is not black:
-				white += 1
-			#we know we are in the middle here, and if the pixels in the middle are white, the window is in the middle
-				#middle window check
-				if (x > xMiddleLeft) and (x<xMiddleRight):
-					middleCount = middleCount +1
-				#checking left side for window
-				if (x < xMiddleLeft):
-				# lets also make sure there are no white pixles in the right side of the image
-					leftCount = leftcount + 1
-				if (x > xMiddleRight): # if we have white right pixels too, then our left count is invalid s
-					leftCount = leftCount  - 1
 
-		if middleCount >= (xMiddleRight-xMiddleLeft-2):
-			print "window in the middle"
-	#	elif
-
-
-		#print im.getcolors()
-		print "Size: ",im.size[0],im.size[1],"White: ",white,"Black: ",black
-		return {'white':white, 'black' : black}
-'''
 	def middleCheck(self,im):
 	#	im = im.load()
 		white = 0
@@ -85,8 +58,6 @@ class ImageProcess:
 		yMiddleTop = int(height*0.6)
 		yMiddleBottom = int(height*0.4)
 
-
-
 		print width, height, xMiddleLeft,xMiddleRight
 
 		midWhitePxlCount = 0
@@ -95,12 +66,21 @@ class ImageProcess:
 
 		midBlackPxlCount = 0
 		leftBlackPxlCount = 0
+		windowFound =0
+		blackStarts = 0
 		rightBlackPxlCount = 0
+		windowStarts = 1212
+		windowEnds = 0
 		for x in range(0,width):
 
 			if i[x,yMiddleTop] < 100:
 				#print i[x,yMiddleTop]
+				if (windowFound==1):
+					blackStarts = x
+					#only works for one side, need to get edges of entire window
+					windowFound = 2
 				black+=1
+				print x
 				if (x>xMiddleLeft and x<xMiddleRight):
 				 	midBlackPxlCount= midBlackPxlCount + 1
 				if (x<xMiddleLeft):
@@ -109,6 +89,14 @@ class ImageProcess:
 					rightBlackPxlCount =  rightBlackPxlCount + 1
 			else:
 				white +=1
+				#need to change my white and black values
+				
+				print "white x " + str(x),
+				if (windowFound ==0):
+					windowFound=1
+					windowStarts = x
+				if (windowFound ==2):
+					windowEnds = x
 				if (x>xMiddleLeft and x<xMiddleRight):
 				 	midWhitePxlCount= midWhitePxlCount + 1
 				if (x<xMiddleLeft):
@@ -118,6 +106,12 @@ class ImageProcess:
 		if (black > white and white <20):
 			print "no window"
 			return
+		# if statement here
+
+		if (midWhitePxlCount > midBlackPxlCount):
+			print "window in the middle"
+			#return 1
+
 		if (leftWhitePxlCount > leftBlackPxlCount):
 			print "window to the left"
 		if (rightWhitePxlCount > rightBlackPxlCount and rightBlackPxlCount < 30):
@@ -132,6 +126,8 @@ class ImageProcess:
 			if (rightBlackPxlCount > rightWhitePxlCount or leftBlackPxlCount > leftWhitePxlCount):
 				print "Window in the middle \n\n"
 
+		# how do we determine black pixels then white, create a state
+
 
 		print  "middle white count = " + str(midWhitePxlCount) + "\n",
 		print  "left white count = " + str(leftWhitePxlCount) + "\n" ,
@@ -140,21 +136,13 @@ class ImageProcess:
 		print  "middle black count = " + str(midBlackPxlCount)+ "\n" ,
 		print  "left black count = " + str(leftBlackPxlCount)+ "\n" ,
 		print "right black count = " + str(rightBlackPxlCount)+ "\n" ,
+		print "black starts @ = " + str(blackStarts)
+		print "window starts @ = " + str(windowStarts)
+		print "window ends @ = " + str(windowEnds)
+
+
 		print 'Argument List:', str(sys.argv[1])
 
-
-		def middleSearch(self,im,xMiddleLeft,xMiddleRight,xMiddle):
-			for x in range(0,width):
-
-				'''
-	for x in range(0,width):
-
-			#	print i[x,100]
-				if i[x,yMiddle] < 20:
-					black +=1
-				else:
-					white +=
-'''
 
 
 ip = ImageProcess()
