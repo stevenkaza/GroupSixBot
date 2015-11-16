@@ -63,7 +63,7 @@ class ImageProcess:
 		midWhitePxlCount = 0
 		leftWhitePxlCount = 0
 		rightWhitePxlCount = 0
-
+		status =0
 		midBlackPxlCount = 0
 		leftBlackPxlCount = 0
 		windowFound =0
@@ -90,7 +90,7 @@ class ImageProcess:
 			else:
 				white +=1
 				#need to change my white and black values
-				
+
 				print "white x " + str(x),
 				if (windowFound ==0):
 					windowFound=1
@@ -103,6 +103,7 @@ class ImageProcess:
 					leftWhitePxlCount = leftWhitePxlCount + 1
 				if (x>xMiddleRight):
 					rightWhitePxlCount =  rightWhitePxlCount + 1
+
 		if (black > white and white <20):
 			print "no window"
 			return
@@ -112,19 +113,27 @@ class ImageProcess:
 			print "window in the middle"
 			#return 1
 
+		if (midWhitePxlCount>40):
+			print "in the middle"
+			return
 		if (leftWhitePxlCount > leftBlackPxlCount):
 			print "window to the left"
-		if (rightWhitePxlCount > rightBlackPxlCount and rightBlackPxlCount < 30):
+			status = status +1
+		if (rightWhitePxlCount > rightBlackPxlCount and rightBlackPxlCount < 80):
 			print "window to the right"
+			status = status +1
 
 		if (rightWhitePxlCount > rightBlackPxlCount	 and midBlackPxlCount < 15 and rightBlackPxlCount < 30):
 			print "Window to the right \n\n"
+			status = status +1
 		elif (leftWhitePxlCount > leftBlackPxlCount and midBlackPxlCount < 15):
-
 			print "Window to the left \n\n"
-		elif (midBlackPxlCount < 15):
+			status = status + 1
+
+		if (midBlackPxlCount < 15):
 			if (rightBlackPxlCount > rightWhitePxlCount or leftBlackPxlCount > leftWhitePxlCount):
-				print "Window in the middle \n\n"
+				if (status<2):
+					print "Window in the middle \n\n"
 
 		# how do we determine black pixels then white, create a state
 
