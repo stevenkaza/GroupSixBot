@@ -44,6 +44,17 @@ class ImageProcess:
 		#converting to grayscale using opencv
 
 
+	def getWindowSide(self,windowStarts,windowEnds,width):
+		#the case where the rest of the window is to the left
+		if (windowStarts ==0 and windowEnds > 500):
+			# figure out a variable for the case where the window never ends
+			return "full window"
+			#this case is very unlikely
+		if (windowStarts < 20 and windowEnds < width):
+			return "partialLeft"
+		if (windowStarts > 1 and windowEnds==512):
+			return "partialRight"
+		return "complete"
 
 	def middleCheck(self,im):
 	#	im = im.load()
@@ -71,16 +82,21 @@ class ImageProcess:
 		rightBlackPxlCount = 0
 		windowStarts = 1212
 		windowEnds = 0
+		#algorithim for average pixel?
 		for x in range(0,width):
-
-			if i[x,yMiddleTop] < 100:
-				#print i[x,yMiddleTop]
+			if i[x,yMiddleTop] < 120:
+				print i[x,yMiddleTop]
 				if (windowFound==1):
 					blackStarts = x
 					#only works for one side, need to get edges of entire window
-					windowFound = 2
+					windowEnds = x
+					result = self.getWindowSide(windowStarts,windowEnds,width)
+					if (result!= "complete"):
+						print result
+						return result
+
 				black+=1
-				print x
+			#	print x
 				if (x>xMiddleLeft and x<xMiddleRight):
 				 	midBlackPxlCount= midBlackPxlCount + 1
 				if (x<xMiddleLeft):
@@ -91,12 +107,10 @@ class ImageProcess:
 				white +=1
 				#need to change my white and black values
 
-				print "white x " + str(x),
+			#	print "white x " + str(x),
 				if (windowFound ==0):
 					windowFound=1
 					windowStarts = x
-				if (windowFound ==2):
-					windowEnds = x
 				if (x>xMiddleLeft and x<xMiddleRight):
 				 	midWhitePxlCount= midWhitePxlCount + 1
 				if (x<xMiddleLeft):
@@ -105,6 +119,7 @@ class ImageProcess:
 					rightWhitePxlCount =  rightWhitePxlCount + 1
 
 		if (black > white and white <20):
+			print black, white
 			print "no window"
 			return
 		# if statement here
@@ -151,6 +166,7 @@ class ImageProcess:
 
 
 		print 'Argument List:', str(sys.argv[1])
+
 
 
 
