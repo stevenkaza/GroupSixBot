@@ -19,6 +19,9 @@ class ImageProcess:
 		## code here to detremine that there is a window in this image
 		return 0
 
+	def whereWindow(self,image):
+		image = self.grayScale(image)
+		self.searchImageForWindow(image)
 	def grayScale(self,im):
 
 		im=im.convert('L') #makes it greyscale
@@ -29,18 +32,15 @@ class ImageProcess:
 		w = Image.open('grayScaled.jpg')
 		return w
 	def process(self, name = str(sys.argv[1]), extention = "jpeg"):
-
-		im = Image.open(name)
+		image = Image.open(name)
 		white = 0
 		black = 0
 		xMiddleLeft = 0
 		xMiddleRight =0
 		yMiddleBottom = 0
 		yMiddleTop = 0
-		im = self.grayScale(im)
-
-		result = self.hasWindow(im)
-		self.middleCheck(im)
+		windowString = self.whereWindow(image)
+		#result = self.hasWindow(im)
 		#converting to grayscale using opencv
 
 
@@ -52,11 +52,56 @@ class ImageProcess:
 			#this case is very unlikely
 		if (windowStarts < 20 and windowEnds < width):
 			return "partialLeft"
-		if (windowStarts > 1 and windowEnds==512):
+		if (windowStarts > 1 and (windowEnds==512 or windowEnds ==0) ):
 			return "partialRight"
 		return "complete"
+	def isWindowFull(self,windowFound,windowStarts):
+			if (windowFound ==1 or (windowFound==2 and windowStarts<10)):
+				return 1
+			return 0
+
+	def newCheck(self,windowStarts,windowEnds,width):
+		if (windowStarts > 208 and windowStarts <313):
+			print "window in middle"
+			return
+		if (windowEnds > 208 and windowEnds < 520):
+			print "window in middle"
+			return
+		if (windowStarts>=0 and windowEnds<208):
+			print "window left"
+			return
+		if (windowStarts>311 and windowEnds <= 510):
+			print "window right"
+			return
+		print "no window"
+		return
+
+	def searchImageForWindow(self,image):
+		im = image.load()
+		width = image.size[0]
+		height = image.size[1]
+		yMid = height*0.5
+		windowEnds = -1
+		windowStarts = -1
+		windowFound = 0
+		for xPxl in range(0,width):
+			print im[xPxl,yMid]
+			if im[xPxl,yMid] < 150:
+				if (windowFound == 1):
+					windowEnds = xPxl
+					windowFound = 2
+			else:
+				if (windowFound ==0):
+					windowFound=1
+					windowStarts = xPxl
+		self.newCheck(windowStarts,windowEnds,width)
+
+
+
+
 
 	def middleCheck(self,im):
+		'''
 	#	im = im.load()
 		white = 0
 		black = 0
@@ -85,11 +130,12 @@ class ImageProcess:
 		#algorithim for average pixel?
 		for x in range(0,width):
 			if i[x,yMiddleTop] < 120:
-				print i[x,yMiddleTop]
+#S				print i[x,yMiddleTop]
 				if (windowFound==1):
 					blackStarts = x
 					#only works for one side, need to get edges of entire window
 					windowEnds = x
+					windowFound = 2
 					result = self.getWindowSide(windowStarts,windowEnds,width)
 					if (result!= "complete"):
 						print result
@@ -106,10 +152,9 @@ class ImageProcess:
 			else:
 				white +=1
 				#need to change my white and black values
-
 			#	print "white x " + str(x),
-				if (windowFound ==0):
-					windowFound=1
+				if (windowFound == 0 ):
+					windowFound= 1
 					windowStarts = x
 				if (x>xMiddleLeft and x<xMiddleRight):
 				 	midWhitePxlCount= midWhitePxlCount + 1
@@ -118,6 +163,20 @@ class ImageProcess:
 				if (x>xMiddleRight):
 					rightWhitePxlCount =  rightWhitePxlCount + 1
 
+		if(self.isWindowFull(windowFound,windowStarts)):
+			result = self.getWindowSide(windowStarts,windowEnds,width)
+			print result
+			return result
+
+
+		print "window starts = " + str(windowStarts) + " and ends = " + str(windowEnds)
+
+		self.newCheck(windowStarts,windowEnds,width)
+
+		#there is a window that starts and ends
+		if (windowStarts>=0 and windowFound == 2):
+			result = self.getWindowSide(windowStarts,windowEnds,width)
+			return result
 		if (black > white and white <20):
 			print black, white
 			print "no window"
@@ -167,7 +226,7 @@ class ImageProcess:
 
 		print 'Argument List:', str(sys.argv[1])
 
-
+		'''
 
 
 ip = ImageProcess()
