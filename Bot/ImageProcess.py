@@ -20,8 +20,8 @@ class ImageProcess:
 		return 0
 
 	def whereWindow(self,image):
-		image = self.grayScale(image)
-		self.searchImageForWindow(image)
+		windowString = self.searchImageForWindow(image,30)
+		return windowString
 	def grayScale(self,im):
 
 		im=im.convert('L') #makes it greyscale
@@ -33,13 +33,19 @@ class ImageProcess:
 		return w
 	def process(self, name = str(sys.argv[1]), extention = "jpeg"):
 		image = Image.open(name)
+		image = self.grayScale(image)
+
 		white = 0
 		black = 0
 		xMiddleLeft = 0
 		xMiddleRight =0
 		yMiddleBottom = 0
 		yMiddleTop = 0
-		windowString = self.whereWindow(image)
+		if (sys.argv[2]=="where"):
+			windowString = self.whereWindow(image)
+		if (sys.argv[2]=="size"):
+			windowString = self.getWindowSize(image,sys.argv[3])
+		print windowString
 		#result = self.hasWindow(im)
 		#converting to grayscale using opencv
 
@@ -50,9 +56,9 @@ class ImageProcess:
 			# figure out a variable for the case where the window never ends
 			return "full window"
 			#this case is very unlikely
-		if (windowStarts < 20 and windowEnds < width):
+		if (windowStarts < 20 and windowEnds < width and windowStarts != -1):
 			return "partialLeft"
-		if (windowStarts > 1 and (windowEnds==512 or windowEnds ==0) ):
+		if (windowStarts > 1 and (windowEnds==512 or windowEnds ==0)):
 			return "partialRight"
 		return "complete"
 	def isWindowFull(self,windowFound,windowStarts):
@@ -60,23 +66,48 @@ class ImageProcess:
 				return 1
 			return 0
 
-	def newCheck(self,windowStarts,windowEnds,width):
-		if (windowStarts > 208 and windowStarts <313):
-			print "window in middle"
-			return
-		if (windowEnds > 208 and windowEnds < 520):
-			print "window in middle"
-			return
-		if (windowStarts>=0 and windowEnds<208):
-			print "window left"
-			return
-		if (windowStarts>311 and windowEnds <= 510):
-			print "window right"
-			return
-		print "no window"
-		return
+	def getWindowPos(self,x1,x2,width):
+		if (x1 > 208 and x1 <313):
+			return "middle"
+		if (x2 > 208 and x2 < 313):
+			return "middle"
+		if (x1>=0 and x2<208 and x2!=-1):
+			return "left"
+		if (x1>311 and x2 <= 510):
+			return "right"
+		return "none"
 
-	def searchImageForWindow(self,image):
+	def getWindowSize(self,image,distance):
+		im = image.load()
+		PxlsPerCM = float(int(distance)+2)/520
+		print PxlsPerCM
+		width = image.size[0]
+		height = image.size[1]
+		windowData = self.searchImageForWindow(image,distance,1)
+		windowList = windowData.split("/")
+		windowWidthPxl = int(windowList[3]) - int(windowList[2])
+		windowWidthCM = PxlsPerCM * windowWidthPxl
+		print windowWidthCM
+
+		print windowList
+
+
+
+
+
+
+	def initImageForSearching(self,image):
+		im = image.load()
+		width = image.size[0]
+		height = image.size[1]
+
+	def searchImageForWindow(self,image,distance,size):
+		#figure this shit out
+		
+		if (distance > 15):
+			blackWhiteBorder = 145
+		else:
+			blackWhiteBorder = 120
 		im = image.load()
 		width = image.size[0]
 		height = image.size[1]
@@ -84,21 +115,37 @@ class ImageProcess:
 		windowEnds = -1
 		windowStarts = -1
 		windowFound = 0
+		whitePxlCount = 0
+		blackPxlCount = 0
 		for xPxl in range(0,width):
-			print im[xPxl,yMid]
-			if im[xPxl,yMid] < 150:
+			#print im[xPxl,yMid]
+			#searching for black, 150 is the color seperation for black and white pixels
+			if im[xPxl,yMid] < blackWhiteBorder:
+				print "pix = " + str(im[xPxl,yMid])
+				print "bb = " + str(blackWhiteBorder)
+				print im[xPxl,yMid]
+				blackPxlCount = blackPxlCount + 1
 				if (windowFound == 1):
 					windowEnds = xPxl
 					windowFound = 2
+				if (whitePxlCount<=5 and blackPxlCount > 4):
+					whitePxlCount = 0
 			else:
+			#	print im[xPxl,yMid], xPxl
 				if (windowFound ==0):
-					windowFound=1
-					windowStarts = xPxl
-		self.newCheck(windowStarts,windowEnds,width)
+					#Disregarding outliers, must be white pixels for at least 3 before it counts as a window
+					whitePxlCount = whitePxlCount + 1
+					if (whitePxlCount > 2):
+						windowFound=1
+						windowStarts = xPxl
 
-
-
-
+		windowString = self.getWindowPos(windowStarts,windowEnds,width)
+		if (windowString == "none"):
+			return "none"
+		windowSide = self.getWindowSide(windowStarts,windowEnds,width)
+		if (size==1):
+			return windowString + "/" +  windowSide + "/" + str(windowStarts) + "/" + str(windowEnds)
+		return windowString + " " + windowSide
 
 	def middleCheck(self,im):
 		'''
