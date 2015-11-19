@@ -60,54 +60,97 @@ class ImageProcess:
 			return "partialLeft"
 		if (windowStarts > 1 and (windowEnds==512 or windowEnds ==0 or windowEnds ==-1)):
 			return "partialRight"
-		return "complete"
+
+		if (windowStarts>=0 and windowEnds <= 256):
+			return "completeLeft"
+		if (windowStarts>=256 and windowEnds <=512):
+			return "completeRight"
 	def isWindowFull(self,windowFound,windowStarts):
 			if (windowFound ==1 or (windowFound==2 and windowStarts<10)):
 				return 1
 			return 0
 
-	def getWindowPos(self,x1,x2,width):
+	def getApproxWindow(self,x1,x2,width):
 		print x1,x2
 		if (x1 > 208 and x1 <313):
 			return "middle"
 		if (x2 > 208 and x2 < 313):
 
 			return "middle"
-		if (x1 >= 0 and( x2 < 313 and x2> 208)):
+		if (x1 >= 0 and( x2 < 313 or x2 > 208) and x2!= -1):
 
 			return "middle"
 		if (x1>=0 and x2<208 and x2!=-1):
 			return "left"
 		if (x1>311 and x2 <= 510):
 			return "right"
+
 		return "none"
 
 	def getWindowSize(self, distance):
 		name = str(sys.argv[1])
 		image = Image.open(name)
+		returnString = ""
 		image = self.grayScale(image)
-		PxlsPerCM = float(int(distance)+2)/520
+		PxlsPerCM = float(int(distance)+2)/512
 		print PxlsPerCM
 		width = image.size[0]
 		height = image.size[1]
+		closestEdgeToMid = 0
 		windowData = self.searchImageForWindow(image,distance,1)
-		windowList = windowData.split("/")
-		print windowList
-		windowWidthPxl = int(windowList[3]) - int(windowList[2])
-		windowWidthCM = PxlsPerCM * windowWidthPxl
-		print windowWidthCM
+		if windowData == "partialLeft" or windowData == "partialRight":
+			print "partial here"
+			return windowData
+		#middle case
+		if '%' in windowData:
+			print"wfsdf"
+			windowList = windowData.split("%")
+			leftEdgeToMidInCM = str(float(int(windowList[0]) * PxlsPerCM))
+			RightEdgeToMidInCM = str(float(int(windowList[1]) * PxlsPerCM))
+			return "{" +"M" +"," + leftEdgeToMidInCM + "," + RightEdgeToMidInCM + "}"
+		#complete left, complete right
+		if '/' in windowData:
+			returnString = ""
 
-		print windowList
+			windowList = windowData.split("/")
+			print windowList
+			windowWidthPxl = int(windowList[3]) - int(windowList[2])
+			print windowWidthPxl
+			windowWidthCM = PxlsPerCM * windowWidthPxl
+			print int(windowList[1])
+			closestEdgeToMid = int(windowList[1]) * PxlsPerCM
+			returnString = "{" + windowList[0] + "," + str(closestEdgeToMid) + "," + str(windowWidthCM) + "}"
+			print returnString
+			return returnString
+			print windowWidthCM
+
+			print windowList
 
 	def initImageForSearching(self,image):
 		im = image.load()
 		width = image.size[0]
 		height = image.size[1]
+	def calcDisClosestEdgeToMid(self,x1,x2):
+		if (x2 < 256 and x1 >=0 and x2 <=256):
+			print "left here" , x2
+			return 256 - x2
+		if (x1 > 256 and x2 < 513):
+			return x1 - 256
+
+	def calcDisEachEdgeToMid(self,x1,x2):
+		if (x1>=0 and x2 >=256):
+			#returning left edge to mid and
+			return str(256 - x1) + "%" + str(x2-256)
+		return -1
+
+
+
+
 
 	def searchImageForWindow(self,image,distance,size):
 		#figure this shit out
-
-		if (size == 1):
+		# different lighting based on how far away robot is
+		if (size > 15):
 			blackWhiteBorder = 120
 		else:
 			blackWhiteBorder = 120
@@ -121,13 +164,10 @@ class ImageProcess:
 		windowFound = 0
 		whitePxlCount = 0
 		blackPxlCount = 0
+		minEdgeList =""
 		for xPxl in range(0,width):
-			print im[xPxl,yMid]
 			#searching for black, 150 is the color seperation for black and white pixels
 			if im[xPxl,yMid] < blackWhiteBorder:
-				#print "pix = " + str(im[xPxl,yMid])
-				#print "bb = " + str(blackWhiteBorder)
-				#print im[xPxl,yMid]
 				blackPxlCount = blackPxlCount + 1
 				if (windowFound == 1):
 					windowEnds = xPxl
@@ -143,13 +183,35 @@ class ImageProcess:
 						windowFound=1
 						windowStarts = xPxl
 		windowSide = ""
-		windowString = self.getWindowPos(windowStarts,windowEnds,width)
+		windowString = self.getApproxWindow(windowStarts,windowEnds,width)
+		if (size==0):
+			return windowString
+		#if we are doing the second function
 		if (size ==1):
+			print "test",windowString
 			if (windowString == "none"):
 				return "none"
+			midEdgeList = self.calcDisEachEdgeToMid(windowStarts,windowEnds)
 			windowSide = self.getWindowSide(windowStarts,windowEnds,width)
-			return windowString + "/" +  windowSide + "/" + str(windowStarts) + "/" + str(windowEnds)
-		return windowString + " " + windowSide
+
+			if midEdgeList == -1: #not direct middle
+					#complete window, not in direct middle
+				if (windowSide=="partialLeft" or windowSide =="partialRight"):
+					return windowSide
+				closestEdgeCM = self.calcDisClosestEdgeToMid(windowStarts,windowEnds)
+				if (windowSide == "completeLeft"):
+					return "L" + "/" + str(closestEdgeCM) + "/" + str(windowStarts) + "/" + str(windowEnds)
+				elif (windowSide == "completeRight"):
+					return "R" + "/" + str(closestEdgeCM) + "/" + str(windowStarts) + "/" + str(windowEnds)
+			#direct middle
+			else:
+				return midEdgeList
+				#return str(windowSide) + "," + str(minEdgeList) + "," + str(windowStarts) + "," + str(windowEnds)
+
+				#	return windowString + "/" +  windowSide + "/" + str(windowStarts) + "/" + str(windowEnds)
+				#Direct middle
+
+	#	return windowString + " " + windowSide
 
 	def middleCheck(self,im):
 		'''
