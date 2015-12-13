@@ -30,9 +30,6 @@ class Move:
 
         self.timeSpin = 0
 
-
-        print "Left Speed: ", self.leftSpeed, "\nRight Speed: ", self.rightSpeed
-
     def checkBoundary(self,cmSent):
         # situation 1
         # we send something and we find out that the robot is going to hit the wall if it continues, meaning the distance is greater
@@ -177,9 +174,10 @@ class Move:
         print end
         return (distanceMoved, (t2-t1) * self.distancePerSecond)
 
-    def findDoor(self, side = 'r', distance = 10):
+    def findDoor(self, side = 'r', distance = 10, maxDistance = 90):
 
         start = self.sensor.getDistance()
+
         self.sensor.getSensor()
         print start
         t1 = time.time()
@@ -196,6 +194,13 @@ class Move:
                     break
             except Exception as e:
                 print e
+
+            t2 = time.time()
+            distanceMoved = (t2-t1) * self.distancePerSecond
+
+            if distanceMoved >= maxDistance:
+                return -1
+            
 
         t2 = time.time()
         end = self.sensor.getDistance()
@@ -309,6 +314,6 @@ if __name__ == "__main__":
     
     #bot = Move()
     s = raw_input("Start: ")
-    moveTest()
+    turnTest()
     #print bot.findDoor('l',10)
     
