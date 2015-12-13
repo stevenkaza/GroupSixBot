@@ -73,8 +73,7 @@ class ImageProcess:
 		if (x2 > 208 and x2 < 313):
 
 			return "middle"
-		if (x1 >= 0 and( x2 < 313 or x2> 208)):
-
+		if (x1 >= 0 and( x2 < 313 and x2> 208) or x2<512):
 			return "middle"
 		if (x1>=0 and x2<208 and x2!=-1):
 			return "left"
@@ -110,7 +109,7 @@ class ImageProcess:
 		if (size == 1):
 			blackWhiteBorder = 120
 		else:
-			blackWhiteBorder = 135
+			blackWhiteBorder = 120
 		print "bb = " + str(blackWhiteBorder)
 		im = image.load()
 		width = image.size[0]
