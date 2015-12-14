@@ -39,7 +39,7 @@ class ComTest:
 			self.com.sendBotLocation((4,4,90))
 		elif command == "data":			
 			while 1:
-				m = (40,40,17,1)
+				m = [[1]*100] * 100
 				'''
 				m.append([1,1,1,1,1,1,1,1,1])
 				m.append([1,0,0,0,0,0,0,0,1])
@@ -51,6 +51,7 @@ class ComTest:
 
 				self.com.sendMessage("data")
 				self.com.updateMap(m)
+				self.com.sendMessage(":end")
 				break
 		else:
 			self.com.sendMessage("Mapping Complete!")

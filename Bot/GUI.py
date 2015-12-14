@@ -256,12 +256,20 @@ def display(queue, running, sh, root):
 				break
 			queue.put((root.displayMessage,[mes]))
 
-		elif message == "data":
+		elif message == "data":			
+			s = ""
+			mapToMake = ""
 
-			mesStr = sh.listener.recv(sh.buf)
-			print mesStr
-			s = json.loads(mesStr)
-			m = makeBox(s)
+			while True:
+				s = sh.listener.recv(sh.buf)
+				s = s.split(":")
+				if len(s) == 1:
+					mapToMake += s[0]
+
+				if any("end" in i for i in s):
+					break
+
+			m = json.loads(mapToMake)
 
 			queue.put((root.drawOnMap,[m]))
 	
