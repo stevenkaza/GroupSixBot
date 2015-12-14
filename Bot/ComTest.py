@@ -40,13 +40,7 @@ class ComTest:
 		elif command == "data":			
 			while 1:
 				m = [[1]*100] * 100
-				'''
-				m.append([1,1,1,1,1,1,1,1,1])
-				m.append([1,0,0,0,0,0,0,0,1])
-				m.append([1,0,0,0,0,0,0,0,1])
-				m.append([1,0,0,0,0,0,0,0,1])
-				m.append([1,1,1,1,1,1,1,1,1])
-				'''
+			
 				#test data
 
 				self.com.sendMessage("data")
