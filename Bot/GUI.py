@@ -267,14 +267,24 @@ def display(queue, running, sh, root):
 					mapToMake += s[0]
 
 				if any("end" in i for i in s):
+					mapToMake += s[0]
+					#sh.listener.recv(sh.buf)
 					break
 
-			m = json.loads(mapToMake)
+			m = []
+
+			try:
+				m = json.loads(mapToMake)
+			except:
+				print m
+				pass
+
 
 			queue.put((root.drawOnMap,[m]))
 	
 		elif message == "bot":
 			mesStr = sh.listener.recv(sh.buf)
+			print mesStr
 			m = json.loads(mesStr)
 			queue.put((root.botLocation,[m]))		
 
